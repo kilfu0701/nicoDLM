@@ -1,4 +1,4 @@
-html,body,h1,h2,h3,h4,h5,div,p,ul,ol,li,dl,dt,dd,table,th,td,form,img,a {
+html,body,div,p,ul,ol,li,dl,dt,dd,table,th,td,form,img,a {
   padding:0;
   margin:0;
   font-size:100%;
@@ -11,7 +11,7 @@ html,body,h1,h2,h3,h4,h5,div,p,ul,ol,li,dl,dt,dd,table,th,td,form,img,a {
   border-spacing:0px;
 }
 ul {
-  list-style-type:none;
+  /*list-style-type:none;*/
 }
 li,dt,dd {
   text-align:left;

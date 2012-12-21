@@ -16,6 +16,7 @@ window.onload = function() {
     loadPlugin();
     restoreOption(); 
     setLocaleWording();
+    loadAboutMe();
     
     /* dynamic load */
     window.onscroll = dynamicLoad; 
@@ -369,7 +370,11 @@ function setLocaleWording() {
         $("#download_dir_btn").val( _locale[pn]['download_dir_btn']);
         $("#clear_all").html( _locale[pn]['delete_all_btn'] );
     }
-    
+}
+
+function loadAboutMe() {
+/* // this will remove
+
     $("#version").html(VERSION);
     $("#release").html(RELEASE);
     
@@ -381,6 +386,24 @@ function setLocaleWording() {
     });
     txt += '</ul>';
     j_log.append($(txt));
+*/
+
+    /* Load About.md into HTML */
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            var src = xhr.responseText;
+            
+            var converter = new Showdown.converter();
+            var cvt = converter.makeHtml(src);
+            $(".markdown-body").append(cvt);
+            $(".markdown-body a").each(function(i,v){
+                $(v).attr('target', '_blank');
+            });
+        }
+    }
+    xhr.open("GET", "About.md", false);
+    xhr.send();
 }
 
 /** 
