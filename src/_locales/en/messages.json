@@ -1,0 +1,12 @@
+{
+	"extName":
+	{
+		"message": "Nico DL Manager",
+		"description":"ext name"
+	},
+	"extDescription":
+	{
+		"message": "Nico Video Download Manager",
+		"description":"ext desc"
+	}
+}

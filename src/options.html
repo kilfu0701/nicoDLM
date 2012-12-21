@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<link type="text/css" rel="StyleSheet" href="css/style.css">
+<link type="text/css" rel="StyleSheet" href="css/tab.webfx.css">
+<link type="text/css" rel="StyleSheet" href="css/options.css">
+<link type="text/css" rel="StyleSheet" href="css/cbdb-search-form.css">
+
+<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/tabpane.js"></script>
+
+<script type="text/javascript" src="js/base.js"></script>
+<script type="text/javascript" src="js/i18n.js"></script>
+<script type="text/javascript" src="js/THK.js"></script>
+<script type="text/javascript" src="js/THK.DB.js"></script>
+<script type="text/javascript" src="js/options.js"></script>
+</head>
+<body>
+    <div class="tab-pane" id="tab-pane-1">
+        <div class="tab-page">
+            <h2 class="tab" id="dlist">下載清單(DL List)</h2>
+            <div class="clearfix">
+                <div id="dl_list">
+                    <div id="toolbar" class="clearfix">
+                        <div class="clearfix">
+                            <div id="search-block">
+                                <form id="search-form" action="/options.html" method="POST">
+                                    <input type="text" id="search_text" />
+                                    <input type="button" value="Search" id="search_btn" />
+                                </form>
+                            </div>
+                            <div id="info-block">                
+                                <span id="videos">影片數：</span><span id="video_cur">--</span>/<span id="video_all">--</span>
+                                <span>|</span>
+                                <button id="clear_all">清除所有下載清單</button>
+                                <span>|</span>
+                                <input type="button" id="export" value="Export"><span id="export_link"></span>
+                                <span>|</span>
+                                <input type="button" id="import" value="Import" disabled="true"></span><input type="file" id="import_file">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <ul>
+                    
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-page">
+            <h2 class="tab" id="general">一般設定(General)</h2>
+            <div id="opt_gen" class="clearfix">
+                <div>
+                     <div id="download_dir">下載檔案目錄位置:</div><input type="text" name="download_dir" value="" size="35" id="download_dir_input">
+                     <input type="button" id="download_dir_btn" value="變更...">
+                </div>
+                <div>
+                    <div id="file_format">檔案名稱格式</div><input type="text" name="file_format" value="" size="35" id="file_format_input">
+                </div>
+                <button class="opt_btn">儲存 [Save]</button>
+            </div>
+            
+        </div>
+        <div class="tab-page">
+            <h2 class="tab" id="langs">語系(Language)</h2>
+            <div id="opt_lang" class="clearfix">
+                <span id="lang_desc"></span><br>
+                <input type="radio" name="lang" value="default" checked /><span id="default">預設值(default)</span><br>
+                <input type="radio" name="lang" value="en" /><span id="en">英文(en)</span><br>
+                <input type="radio" name="lang" value="zh-TW" /><span id="zh-TW">繁中(zh-TW)</span><br>
+                <input type="radio" name="lang" value="ja-JP" /><span id="ja-JP">日文(ja-JP)</span><br>
+                <button class="opt_btn">儲存 [Save]</button>
+            </div>
+        </div>
+        <div class="tab-page">
+            <h2 class="tab" id="abouts">About nicoDLM</h2>
+            <div id="about_nicoDLM" class="clearfix">
+                <b>目前版本(Version): <span id="version">0.1.1</span></b> <span id="release">(release@2012/12/19)</span><br><br>
+                如果有使用時遇到BUG 或是 有其他想要新增的功能，歡迎回報給我，我會盡量修改調整。<br><br>
+                相關套件消息&更新，可以到<a href="http://kilfu0701.blogspot.tw/2012/12/nico-download-manager-nicodlm.html" target="_blank">nicoDLM @ blogger</a><br><br><br><br>
+                
+                
+                This Chrome Extension is written by kilfu0701. (kilfu0701@gmail.com)<br><br>
+                
+                <hr>
+                
+                <div class="clearfix" id="change_log">
+                    <div id="clog_title">CHANGE LOG:</div>
+                </div>
+            </div>
+        </div>
+   </div>
+   
+    <div id="save"></div>
+    
+    <div id="search_result">
+        <div id="close_search_result"><img src="/images/cancel.png" id="close_search_btn"></div>
+        <div id="search_result_content"></div>
+    </div>
+    
+</body> 
+</html>

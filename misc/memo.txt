@@ -1,0 +1,32 @@
+﻿http://flapi.nicovideo.jp/api/logger.php
+
+POST: player_log:<player_log><logs><log name="playstats"><r>9399</r><blocked>0</blocked><t1>236</t1><frq>10</frq><deleted>0</deleted><host>smile-cll32.nicovideo.jp</host><hiroba>1</hiroba><date>2012-12-13T16:23:16+09:00</date><t2>172</t2><video>sm14947454</video></log></logs></player_log>
+
+
++++++++++++++++++++++
+
+
+
+
+
+
+
+
+GET : http://msg.nicovideo.jp/crossdomain.xml
+
+<?xml version="1.0"?>
+<!DOCTYPE cross-domain-policy SYSTEM "http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd">
+<cross-domain-policy>
+	<allow-access-from domain="*.nicovideo.jp" />
+	<allow-access-from domain="*.nimg.jp" />
+	<allow-access-from domain="*.niconico.com" />
+</cross-domain-policy>
+
+
+++++++++++++++++++++++++
+
+POST : http://msg.nicovideo.jp/24/api/
+
+<packet><thread thread="1353170911" version="20090904" user_id="30215686" scores="1" with_global="1"/><thread_leaves thread="1353170911" user_id="30215686" scores="1">0-63:100,1000</thread_leaves></packet>
+
+<?xml version="1.0" encoding="UTF-8"?><packet><thread resultcode="0" thread="1353170911" last_res="18" ticket="0x22ce16c0" revision="1" server_time="1353302253"/><leaf thread="1353170911" count="10"/><leaf thread="1353170911" leaf="4" count="1"/><leaf thread="1353170911" leaf="24" count="1"/><leaf thread="1353170911" leaf="27" count="2"/><leaf thread="1353170911" leaf="29" count="1"/><leaf thread="1353170911" leaf="42" count="1"/><leaf thread="1353170911" leaf="52" count="2"/><view_counter video="992" id="sm19378643" mylist="34"/><global_num_res thread="1353170911" num_res="18"/><thread resultcode="0" thread="1353170911" last_res="18" ticket="0x22ce16c0" revision="1" server_time="1353302253"/><chat thread="1353170911" no="1" vpos="350" date="1353175561" mail="184" user_id="MKovoty_bnztZzcE4SIZDWfRm3o" anonymity="1">1</chat><chat thread="1353170911" no="2" vpos="2433" date="1353177593" mail="184" user_id="HY5Md7oPZU8oVN3D_4tca9z3FrE" anonymity="1">2</chat><chat thread="1353170911" no="3" vpos="312421" date="1353180850" mail="184" user_id="uYmIlHV46II7hU5Xg8cWhZ1YHB8" anonymity="1" leaf="52">3</chat><chat thread="1353170911" no="4" vpos="472" date="1353204822" mail="184" user_id="0pugXkghSFBCnvsy3mUqnmbWhXk" premium="1" anonymity="1">4</chat><chat thread="1353170911" no="5" vpos="701" date="1353215752" mail="184" user_id="qrgrlNP_QvA-HMedjTnsfFLuhqA" anonymity="1">５</chat><chat thread="1353170911" no="6" vpos="1224" date="1353220550" mail="184" user_id="Xc9WOKKPpbSroO04vVT1uzQashY" anonymity="1">６</chat><chat thread="1353170911" no="7" vpos="943" date="1353229475" mail="184" user_id="QVsIdnbHDbfMF8_GT7FTYIZKkeQ" premium="1" anonymity="1">７</chat><chat thread="1353170911" no="8" vpos="167931" date="1353232556" mail="184" user_id="jP99cRDlZOCQNjC7aTz9K0PKg0s" anonymity="1" leaf="27">8</chat><chat thread="1353170911" no="9" vpos="1630" date="1353235400" mail="184" user_id="DVZzUA3Cy0WLPME3VwcPkHDKTBg" anonymity="1">９</chat><chat thread="1353170911" no="10" vpos="1587" date="1353236677" mail="184" user_id="8UFyhSJn88GZikOouJG0oaYncAk" premium="1" anonymity="1">10</chat><chat thread="1353170911" no="11" vpos="2364" date="1353238230" mail="184" user_id="ucea9HxhbZKI4yK3V9H-i7PaFZg" anonymity="1">6</chat><chat thread="1353170911" no="12" vpos="4999" date="1353238259" mail="184" user_id="ucea9HxhbZKI4yK3V9H-i7PaFZg" anonymity="1">11</chat><chat thread="1353170911" no="13" vpos="28699" date="1353239298" mail="184" user_id="uvwb2yqvzE4KRsVCFGxta0zak9U" anonymity="1" leaf="4">いいね</chat><chat thread="1353170911" no="14" vpos="175358" date="1353240645" mail="184" user_id="uvwb2yqvzE4KRsVCFGxta0zak9U" anonymity="1" leaf="29">せつなああああああああ</chat><chat thread="1353170911" no="15" vpos="149311" date="1353244976" mail="184" user_id="2bF__-_E9JFoYzEUC_SOgYAANzY" anonymity="1" leaf="24">イリィィィィィ</chat><chat thread="1353170911" no="16" vpos="162820" date="1353247141" mail="184" user_id="dtGQcHfVyhcrZdejCMZkSJ90gpI" anonymity="1" leaf="27">suara＼(^o^)／</chat><chat thread="1353170911" no="17" vpos="253213" date="1353248045" mail="184" user_id="dtGQcHfVyhcrZdejCMZkSJ90gpI" anonymity="1" leaf="42">きたあああああああああああああ</chat><chat thread="1353170911" no="18" vpos="313656" date="1353252170" mail="184" user_id="gMxScRzbbFUDne0st5wG3UvT5DQ" premium="1" anonymity="1" leaf="52">いいゲームだったなｌ６あ</chat></packet>

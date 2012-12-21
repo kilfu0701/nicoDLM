@@ -1,0 +1,115 @@
+html,body,h1,h2,h3,h4,h5,div,p,ul,ol,li,dl,dt,dd,table,th,td,form,img,a {
+  padding:0;
+  margin:0;
+  font-size:100%;
+  font-weight:normal;
+  line-height:1.2em;
+  letter-spacing:0.1em;
+  text-decoration:none;
+  border:0;
+  border-collapse:collapse;
+  border-spacing:0px;
+}
+ul {
+  list-style-type:none;
+}
+li,dt,dd {
+  text-align:left;
+}
+ol > li {
+  margin-left:1.5em;
+}
+h1,h2,h3,h4,h5 {
+  line-height:1em;
+}
+a:hover {
+  text-decoration:underline;
+}
+img {
+  display:inline-block;
+  text-align:center;
+  vertical-align:bottom;
+}
+button {
+  cursor:pointer;
+}
+/*
+--------------------------------------------------
+   base structure
+--------------------------------------------------
+*/
+body {
+  text-align: center;
+  overflow-x:hidden;overflow-y:auto;
+  font-size: 14px;
+  color: #333;
+  margin-left: auto;
+  margin-right: auto;
+  font-family:'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
+  padding: 10px;
+}
+#container { 
+  position:relative;
+  min-height:100%;
+  height:auto !important;
+  height:100%;
+  margin:0 auto;
+}
+#main,#wrap {
+  padding-bottom:100px;
+  margin:0 auto;  
+}
+#header { 
+  margin:0 auto;
+}
+#contents {
+  margin:0 auto;
+}
+#footer { 
+  position:absolute;
+  bottom:0px;
+  width:100%;
+  margin:0 auto;
+}
+/*
+--------------------------------------------------
+   clearfix
+--------------------------------------------------
+*/
+.cleafix:after{ 
+  content:"";
+  display:block;
+  height:0;
+  clear:both;
+  visibility:hidden;
+  overflow:hidden;
+}
+.clearfix {
+  overflow:hidden;
+  *zoom:1;
+}
+/*
+--------------------------------------------------
+   ulitily class
+--------------------------------------------------
+*/
+.center {
+  text-align:center;
+}
+.left {
+  text-align:left;
+}
+.right {
+  text-align:right;
+}
+.red {
+  color:#c00;
+}
+.blue {
+  color:#00f;
+}
+.black {
+  color:#000;
+}
+
+a { color:#06C; }

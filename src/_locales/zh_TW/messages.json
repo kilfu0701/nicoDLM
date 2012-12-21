@@ -1,0 +1,12 @@
+{
+	"extName":
+	{
+		"message": "Nico DL Manager",
+		"description":"擴充套件名稱"
+	},
+	"extDescription":
+	{
+		"message": "Nico影片下載管理員",
+		"description":"擴充套件描述"
+	}
+}

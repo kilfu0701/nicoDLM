@@ -1,0 +1,131 @@
+#lang_desc {
+	font-weight: bold;
+	color: blue;
+}
+
+#toolbar {
+    text-align: right;
+}
+
+#search-block {
+    float: left;
+    display:none;
+}
+
+#info-block {
+    float: right;
+}
+
+button#clear_all, input#export, input#import, input#import_file {
+    padding: 3px;
+}
+
+.opt_btn {
+	padding:3px;
+}
+
+#save {
+    color: red; 
+    display: none;
+    text-align: left;
+}
+
+#dl_list { float:left; display:block; min-width:1000px; }
+#dl_list ul li { height:120px; list-style-type: none; padding:4px; }
+
+#opt_lang, #opt_gen, #about_nicoDLM { text-align: left; }
+
+div#download_dir,
+div#file_format { width: 220px; height:20px; padding-top:6px; float:left; }
+
+
+div.dl-status-0,
+div.dl-status-1,
+div.dl-status-2,
+div.dl-status-3, 
+div.dl-status-403, 
+div.dl-status-404 {
+    width: 100px;
+    height: 40px;
+    padding: 10px 0 0 60px;
+}
+
+div.dl-status-0 {
+    background: url(/images/wait.gif) no-repeat;
+}
+
+
+div.dl-status-1 {
+    background: url(/images/complete.png) no-repeat;
+}
+
+
+div.dl-status-2, div.dl-status-403, div.dl-status-404 {
+    background: url(/images/cancel.png) no-repeat;
+}
+
+div.dl-status-3 {
+    background: url(/images/download.png) no-repeat;
+}
+
+
+/* ul > li > div */
+div.outer_div {
+    height:120px; position:relative;
+}
+
+div.inner_div1 {
+    float:left; width:312px; height:114px; padding:3px; position:relative; border-right:solid 1px #ccc;
+}
+
+img.inner_div1_a_img {
+    position:absolute; top:10px;
+}
+
+#search_result {
+    position: absolute;
+    width: 750px;
+    min-height: 10px;
+    background-color: #F6F6F6;
+    top: 105px;
+    left: 45px;
+    border: solid 2px #AAA;
+    z-index: 10;
+    display: none;
+    
+    /* Rounded Corners */
+	border-radius: 17px; 
+	-webkit-border-radius: 17px;
+	-moz-border-radius: 17px;
+    
+    /* Shadows */
+	box-shadow: 10px 10px 5px rgba(0,0,0,.3), 0 0 2px rgba(0,0,0,.3); 
+	-webkit-box-shadow: 10px 10px 5px rgba(0,0,0,.3), 0 0 2px rgba(0,0,0,.3);
+	-moz-box-shadow: 10px 10px 5px rgba(0,0,0,.3), 0 0 2px rgba(0,0,0,.3);
+}
+
+#close_search_result {
+    position: relative;
+    height:30px;
+    width:750px;
+    top: 0;
+    left: 0;
+    text-align: right;
+}
+
+#close_search_result img {
+    width:30px;
+    height:30px;
+    cursor: pointer;
+}
+
+span#export_link {
+    width: 50px;
+    height: 20px;
+}
+
+#clog_title {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px;
+}
