@@ -315,9 +315,29 @@ function generateDownloadFileFormat(vinfo) {
 
 /* open option.html when extension icon click */
 chrome.browserAction.onClicked.addListener(function(tab) {
-    chrome.tabs.create({'url': chrome.extension.getURL('options.html')}, function(tab) {
+    chrome.tabs.create({'url': chrome.extension.getURL('html/options.html')}, function(tab) {
         // Tab opened.
     });
 });
 
 
+/* 
+// NEW for version 0.1.4, will be implement after.
+chrome.tabs.onUpdated.addListener( showMenu );
+chrome.tabs.onSelectionChanged.addListener( showMenu );
+
+function startDownload( aTab ) {
+}
+
+function genericOnClick(info, tab){
+    chrome.tabs.getSelected( null , startDownload ); 
+}
+
+function showMenu( aTabId , aChangeInfo ) {
+    chrome.contextMenus.removeAll();
+    
+    chrome.tabs.get( aTabId , function( aTab ) { 
+        var id = chrome.contextMenus.create({"title": 'nico DL Manager', "contexts":['all'], "onclick": genericOnClick});
+    });
+}
+*/

@@ -1,6 +1,6 @@
 /**
  * Access to chorme databases.
- * Add functions into THK class, plz check THK initialize before.
+ * 使用chrome web sql
  * 
  * author: kilfu0701, kilfu0701@gmail.com
 **/

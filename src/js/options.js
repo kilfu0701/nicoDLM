@@ -10,68 +10,19 @@ var perLoad = options["perLoad"] || 20;
 var TotalVideo = 0;
 
 var j_video_cur;
-var j_video_all;
+var j_video_all; 
 
 window.onload = function() {
     loadPlugin();
     restoreOption(); 
     setLocaleWording();
     loadAboutMe();
+    addEventHandle();
     
-    /* dynamic load */
-    window.onscroll = dynamicLoad; 
-    
-    /* search bar */
-    $("#search_btn").click(function(e){
-        searchVideo();
-    });
+    window.onscroll = dynamicLoad;
     
     j_video_cur = j_video_cur || $("#video_cur");
     j_video_all = j_video_all || $("#video_all");
-    
-    /* add opt_btn onclick event */
-    $(".opt_btn").click(function(e){
-        saveOption();
-    });
-    
-    /* clear all data event */
-    $("#clear_all").click(function(e){
-        clearDownloadList();
-    });
-    
-    /* export event */
-    $("#export").click(function(e){
-        exportList();
-    });
-    
-    /* import file select event */
-    var j_import_file = $("#import_file");
-    j_import_file.change(function(e){
-        var _fname = j_import_file.val() || "";
-        if(_fname=="") {
-            $("#import").attr('disabled',true);
-        } else {
-            $("#import").attr('disabled',false);
-        }
-    });
-    
-    /* import event */
-    $("#import").click(function(e){
-        importList();
-    });
-    
-    /* search result block close event */
-    $("#close_search_btn").click(function(e){
-        $("#search_result").fadeOut(300);
-    });
-    
-    /* add download folder select event */
-    $("#download_dir_btn").click(function(e){
-        var dl_path = plugin.selectFolder();
-        if(dl_path!="") {
-            $("#download_dir_input").val(dl_path);
-        }
-    });
     
     // get total video count first.
     THK.DB.getCount('dlist', function(res){
@@ -151,6 +102,9 @@ function readPluginMsg() {
     window.setTimeout( readPluginMsg, 1000);
 }
 
+/**
+ * 載入plugin
+**/
 function loadPlugin() {
     var _plugin = document.createElement("embed");
     _plugin.style.position = "absolute";
@@ -162,6 +116,9 @@ function loadPlugin() {
     plugin = document.getElementById("npapi"); 
 }
 
+/**
+ * 當畫面拉到底，自動讀取更多清單項目。
+**/
 function dynamicLoad() {
     var _body = THK.get('body')[0];
     var contentHeight = _body.offsetHeight;
@@ -184,6 +141,44 @@ function dynamicLoad() {
             });
         }
 	}
+}
+
+/**
+ * 設定所有事件處理
+**/
+function addEventHandle() {
+    /* 搜尋欄位(search bar) */
+    $("#search_btn").click(function(e){  searchVideo();  });
+    
+    /* 選單儲存(save option) */
+    $(".opt_btn").click(function(e){  saveOption();  });
+    
+    /* 清除所有資料(delete all data) */
+    $("#clear_all").click(function(e){  clearDownloadList();  });
+    
+    /* 匯入/匯出(import/export) */
+    $("#export").click(function(e){  exportList();  });
+    $("#import").click(function(e){  importList();  });
+    var j_import_file = $("#import_file");
+    j_import_file.change(function(e){
+        var _fname = j_import_file.val() || "";
+        if(_fname=="") {
+            $("#import").attr('disabled',true);
+        } else {
+            $("#import").attr('disabled',false);
+        }
+    });
+    
+    /* search result block close event */
+    //$("#close_search_btn").click(function(e){  $("#search_result").fadeOut(300);  });
+    
+    /* 選擇資料夾(browse folder selector) */
+    $("#download_dir_btn").click(function(e){
+        var dl_path = plugin.selectFolder();
+        if(dl_path!="") {
+            $("#download_dir_input").val(dl_path);
+        }
+    });    
 }
 
 function addDownloadListElemets(data, prepend) {
@@ -261,6 +256,9 @@ function addDownloadListElemets(data, prepend) {
     }
 }
 
+/**
+ * 
+**/
 function openDir(path) {
     var arr = path.split("/");
     var len = arr.length;
@@ -311,11 +309,16 @@ function clearDownloadList() {
     }
 }
 
+/**
+ * Refresh頁面
+**/
 function doRefresh() {
     window.location.href = window.location.href;
 }
 
-// Restore setting
+/**
+ * 當頁面開啟後，回復選單上次的設定
+**/
 function restoreOption()
 {
     var lang = localStorage["lang"];
@@ -402,7 +405,7 @@ function loadAboutMe() {
             });
         }
     }
-    xhr.open("GET", "About.md", false);
+    xhr.open("GET", "/About.md", false);
     xhr.send();
 }
 
