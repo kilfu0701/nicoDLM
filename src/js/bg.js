@@ -1,3 +1,7 @@
+/**
+ * Background script. (背景處理)
+**/
+
 /* init DB */
 THK.DB.init();
 
