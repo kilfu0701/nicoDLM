@@ -11,12 +11,14 @@ nicoDLM (Nico Download Manager)
 
 相關套件消息&更新，可以到 [nicoDLM@Blogger](http://kilfu0701.blogspot.tw/2012/12/nico-download-manager-nicodlm.html) 以及 [nicoDLM@github](https://github.com/kilfu0701/nicoDLM)
 
-**目前版本(Version): 0.1.4a** @ 2012/12/22
+**目前版本(Version): 0.1.4** @ 2012/12/26
 
 .  
 
 CHANGE LOG：
 -----
+  
+  * 0.1.4:  針對niconico Q和原宿的界面不同，右鍵選單裡新增一個"下載動畫(nicoDLM)"選項。原宿版本依舊有原本的下載連結，右鍵選單則是nico Q和原宿皆可使用。
 
   * 0.1.3:  重新編譯plugins，修正extension啟動時發生錯誤。Chrome 24版本以後似乎沒支援window.WebKitBlobBuilder, 所以Export部份用window.Blob改寫。
 

@@ -6,8 +6,8 @@
 /* Global Vars */
 var G_DL_DIR = "C:/",
     G_DEFAULT_LANG = "default",
-    VERSION = '0.1.4a',
-    RELEASE = '2012/12/22';
+    VERSION = '0.1.4',
+    RELEASE = '2012/12/26';
 
 
 var NICO_URL = "www.nicovideo.jp/watch/";
