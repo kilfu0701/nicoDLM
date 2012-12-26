@@ -1,5 +1,6 @@
 /**
- * Some basic functions.
+ * Some basic functions, constants. (Load this script at top)
+ * 基本函式, 常數 
 **/
 
 /* Global Vars */
@@ -7,14 +8,14 @@ var G_DL_DIR = "C:/",
     G_DEFAULT_LANG = "default",
     VERSION = '0.1.4a',
     RELEASE = '2012/12/22';
-/* // will remove
-var CHANGE_LOG = {
-    '0.1.3' : '(2012/12/21) 重新編譯plugins，修正extension啟動時發生錯誤。Chrome 24版本以後似乎沒支援window.WebKitBlobBuilder, 所以Export部份用window.Blob改寫。',
-    '0.1.2' : '(2012/12/20) 新增import/export功能，調整locale wording。',
-    '0.1.1' : '(2012/12/19) 初版本release',
-}
-*/
 
+
+var NICO_URL = "www.nicovideo.jp/watch/";
+var NICO_REG_URL = new RegExp( NICO_URL );
+/* check if this url is niconico */
+function isNicoURL( uri ) {
+    return ( uri.match(NICO_REG_URL) != undefined );
+}
 
 /* Load javascript file into html */
 function LoadScript(scriptName) {

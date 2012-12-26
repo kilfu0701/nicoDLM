@@ -2,7 +2,7 @@
  * This script is use for chrome localStorage Language Settings.
  * If set by 'default', just use the "_locales" language data.
  * Else, replace wording by this Javascript
- */
+**/
 
 var _locale = {
     'default': {
@@ -32,6 +32,7 @@ var _locale = {
         'dl_status_2': 'canceled',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
+        'MenuListTitle': 'Download Douga (nicoDLM)',
     },
     
     'en': {
@@ -61,6 +62,7 @@ var _locale = {
         'dl_status_2': 'canceled',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
+        'MenuListTitle': 'Download Douga (nicoDLM)',
     },
     
     'zh-TW': {
@@ -90,6 +92,7 @@ var _locale = {
         'dl_status_2': '已取消',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
+        'MenuListTitle': '下載動畫 (nicoDLM)',
     },
     
     'ja-JP': {
@@ -119,6 +122,7 @@ var _locale = {
         'dl_status_2': 'キャンセル',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
+        'MenuListTitle': '動画をDL (nicoDLM)',
     }
 };
 

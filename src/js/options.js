@@ -1,3 +1,8 @@
+/**
+ * script for option page.
+ * (選單頁面)
+**/
+
 THK.DB.init();
 
 /* get setting from background.html */
@@ -213,7 +218,7 @@ function addDownloadListElemets(data, prepend) {
           '<div style="float:left; width:140px; height:114px; padding:3px; position:relative; overflow:hidden;">'+
             '<div id="progress_'+data.video_id+'" class="dl-status-'+data.status+'">'+dl_status+'</div>'+ // dl status
             '<div id="adv_'+data.video_id+'"></div>'+
-            '<img src="images/delete_icon2.png" class="delete" id="del_'+data.video_id+'" style="position:absolute; bottom:0; right:10px; display:none; cursor:pointer;">'+
+            '<img src="/images/delete_icon2.png" class="delete" id="del_'+data.video_id+'" style="position:absolute; bottom:0; right:10px; display:none; cursor:pointer;">'+
           '</div>'+
         '</div>'+
         '<hr style="border: 1px dotted #0099CC" color="white" size="1">'  

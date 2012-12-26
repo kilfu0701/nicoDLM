@@ -20,8 +20,6 @@ window.onload = function() {
     Initialize();
     
 
-    var dir_path = localStorage["download_dir"] || G_DL_DIR;
-    //console.log(dir_path);
 }
 
 /**
@@ -65,7 +63,8 @@ function resetAutoInc() {
 
 /**
  * extension startup init...
- */
+ * (初始化)
+**/
 function Initialize() {
     nicoAppDir = fs2.getAppDir() || G_DL_DIR;
 
@@ -87,7 +86,9 @@ function Initialize() {
     window.setTimeout( resetAutoInc, 1000*60*30);
 }
 
-/* Load plugin into page. */
+/**
+ * Load plugin into page. 
+**/
 function loadPlugin() {
     //console.log('load plugin...');
     this.fs = document.createElement("embed");
@@ -101,7 +102,9 @@ function loadPlugin() {
 }
 
 
-// from plugin call back, and write data into 'localStorage'
+/**
+ * from plugin call back, and write data into 'localStorage'
+**/
 function plugin_callback() {
     if(arguments.length > 0) {
         var _action = arguments[0];
@@ -138,102 +141,18 @@ function plugin_callback() {
 
 /**
  * export/return localStorage to other script 
- */
+**/
 function getOptionSetting() {
     return localStorage;
 }
 
-/*
-// s1
-chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-        console.log("onBeforeRequest=%o", details);
-    },{
-        urls: ["http://*.nicovideo.jp/smile*"]
-    },["blocking"]
-);
-
-// s2
-chrome.webRequest.onBeforeSendHeaders.addListener(
-    function(details) {
-        console.log("onBeforeSendHeaders=%o", details);
-    },{
-        urls: ["http://*.nicovideo.jp/smile*"]
-    },["blocking"]
-);
-
-// s3
-chrome.webRequest.onSendHeaders.addListener(
-    function(details) {
-        console.log("onSendHeaders=%o", details);
-    },{
-        urls: ["http://*.nicovideo.jp/smile*"]
-    },["requestHeaders"]
-);
-
-// s4
-chrome.webRequest.onHeadersReceived.addListener(
-    function(details){
-        var hasHeader = false;
-        var ext, m;
-        //console.log(movieObj);
-        filename = '[' + movieObj['videoId'] + '] ' + movieObj['videoTitle'];
-        
-        
-        for(var i=0;i<details.responseHeaders.length;i++){
-            if(details.responseHeaders[i].name=="Content-Disposition"){
-                ext = "mp4";
-                if( m = details.responseHeaders[i].value.match(/.+\.([a-z0-9]+)"$/)){
-                    ext = m[1];
-                }
-                details.responseHeaders[i].value="attachment; filename=\""+filename+"."+ext+"\"";
-                hasHeader=true;
-                break;
-            }
-        }
-        if(!hasHeader){
-            details.responseHeaders.push({name:"Content-Disposition",value:"attachment; filename=\""+filename+".mp4\""});
-        }
-
-        console.log("onHeadersReceived=%o",details.responseHeaders);
-        
-        THK.DB.addIntoDLM(movieObj); // insert into DB
-        
-        return {responseHeaders:details.responseHeaders};
-    },{
-        urls: ["http://*.nicovideo.jp/smile*"],
-        types:["main_frame","other"]
-    },["responseHeaders","blocking"]
-);
-
-// s5
-chrome.webRequest.onResponseStarted.addListener(
-    function(details) {
-        console.log("onResponseStarted=%o", details);
-    },{
-        urls: ["http://*.nicovideo.jp/smile*"]
-    },["responseHeaders"]
-);
-
-// s6
-chrome.webRequest.onCompleted.addListener(
-    function(details) {
-        console.log("onCompleted=%o", details);
-    },{
-        urls: ["http://*.nicovideo.jp/smile*"]
-    },["responseHeaders"]
-);
-*/
-
-
 /**
- *  send Requests to content scripts
- */
-//chrome.tabs.getSelected(null, function(tab) {   
-//    chrome.tabs.sendRequest(tab.id, {greeting: "movieURL"}, function(response) {   
-//        //console.log(response.farewell);   
-//    });   
-//});  
+ * get current language setting.
+ * (取得 目前語言設定)
+**/
+function getLang() {
+    return localStorage["lang"] || G_DEFAULT_LANG;
+}
 
 /**
  *  get Request from content scripts
@@ -243,72 +162,75 @@ chrome.extension.onRequest.addListener(
         //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
                 
         if (request.greeting == "movieURL") {
-            var movieObj = request.movieInfo;
-            var movieThumb = request.movieThumb;
-            var flapi = request.flapiInfo;
+            //var movieObj = request.movieInfo;
+            //var movieThumb = request.movieThumb;
+            //var flapi = request.flapiInfo;
             
-            mvurls = movieObj['mvUrl'];
-            //console.log(flapi);
-            //console.log(movieThumb);
-            //console.log(mvurls);
+            mvurls = request.movieInfo['mvUrl'];
             
             if(mvurls==undefined) {
                 sendResponse({farewell: "failed"});
             } else {
-                THK.DB.findByVideoID(movieThumb.video_id, function(abr){
-                    if(abr==undefined || abr.status!=0) {
-                        /* check video quality is high or low */
-                        if(mvurls.substr(-3)=="low") {
-                            movieThumb.quality = "low";
-                        } else {
-                            movieThumb.quality = "high";
-                        }
-                        
-                        /* insert into WebSQL */
-                        THK.DB.addIntoDLM(movieThumb, function(res){
-                            //console.log(res);
-                        });
-                        
-                        //chrome.tabs.create({"url":mvurls, selected:false}, function(detail){});  // new tab for downloading
-
-                        /* load page once at first.(not work?) */
-                        //fs2.getValueForURL(movieThumb['watch_url']);
-                        
-                        /* filename for save. */
-                        var _fname = generateDownloadFileFormat(movieThumb);
-                        var dir_path = localStorage["download_dir"] || G_DL_DIR;
-                        
-                        /* start download by plugin. */
-                        var DLcode = fs2.dl(mvurls, _fname, "."+movieThumb.movie_type, dir_path, movieThumb.video_id);
-                        /* download commnet */
-                        fs2.dlComment(flapi.ms, _fname, ".xml", dir_path, flapi.thread_id);
-                        
-                        if(DLcode=="dl") {
-                            var lang = localStorage["lang"] || G_DEFAULT_LANG;
-                            alert(_locale[lang]['addIntoDLSuccess']);
-                            sendResponse({farewell: "ok"});
-                        } else {
-                            sendResponse({farewell: "failed"});
-                        }
-                    } else {
-                        alert('already add into download list');
-                        sendResponse({farewell: "failed"});
-                    }
-                });
+                
             
-            
-            
+                startDownload(mvurls, request.flapiInfo, request.movieThumb);
+                sendResponse({farewell: "ok"});
 
             }
         } else if(request.greeting == "getLang") {
-            sendResponse({farewell: getOptionSetting()});
+            var _lang = getLang();
+            sendResponse({Lang: _lang});
         } else {  
             sendResponse({}); // snub them.
         }
     }
 ); 
 
-/* filename formatting */
+function startDownload(movieURL, flapiInfo, movieThumb) {
+    THK.DB.findByVideoID(movieThumb.video_id, function(abr){
+        if(abr==undefined || abr.status!=0) {
+            /* check video quality is high or low */
+            if(movieURL.substr(-3)=="low") {
+                movieThumb.quality = "low";
+            } else {
+                movieThumb.quality = "high";
+            }
+            
+            /* insert into WebSQL */
+            THK.DB.addIntoDLM(movieThumb, function(res){
+                //console.log(res);
+            });
+
+            /* load page once at first.(not work?) */
+            //fs2.getValueForURL(movieThumb['watch_url']);
+            
+            /* filename for save. */
+            var _fname = generateDownloadFileFormat(movieThumb);
+            var dir_path = localStorage["download_dir"] || G_DL_DIR;
+
+            /* start download by plugin. */
+            var _ext = movieThumb.movie_type || "thk";
+            var DLcode = fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id);
+            
+            /* download commnet */
+            fs2.dlComment(flapiInfo.ms, _fname, ".xml", dir_path, flapiInfo.thread_id);
+            
+            if(DLcode=="dl") {
+                var lang = getLang();
+                alert(_locale[lang]['addIntoDLSuccess']);
+            } else {
+            
+            }
+        } else {
+            alert('already add into download list');
+        }
+    });
+}
+
+
+/**
+ * filename formatting 
+**/
 function generateDownloadFileFormat(vinfo) {
     var _format = localStorage["file_format"];
     var ret = _format.replace("%ID%", vinfo.video_id);
@@ -317,7 +239,9 @@ function generateDownloadFileFormat(vinfo) {
     return ret;
 }
 
-/* open option.html when extension icon click */
+/** 
+ * open option.html when extension icon click 
+**/
 chrome.browserAction.onClicked.addListener(function(tab) {
     chrome.tabs.create({'url': chrome.extension.getURL('html/options.html')}, function(tab) {
         // Tab opened.
@@ -325,23 +249,43 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });
 
 
-/* 
+
+/**
+ * Insert a menu into right-click MenuList.
+**/
 // NEW for version 0.1.4, will be implement after.
-chrome.tabs.onUpdated.addListener( showMenu );
-chrome.tabs.onSelectionChanged.addListener( showMenu );
+chrome.tabs.onUpdated.addListener( setMenuList );
+chrome.tabs.onSelectionChanged.addListener( setMenuList );
 
-function startDownload( aTab ) {
-}
-
-function genericOnClick(info, tab){
-    chrome.tabs.getSelected( null , startDownload ); 
-}
-
-function showMenu( aTabId , aChangeInfo ) {
-    chrome.contextMenus.removeAll();
+function prepareDownload( aTab ) {
+    /* start download video & comments */
+    // b'cuz background script is separated into different part. 
+    // here has two way to do. 
+    //   First is re-new a THK object, and use it.
+    //   Second is pass value from THK.js(content script).    
     
-    chrome.tabs.get( aTabId , function( aTab ) { 
-        var id = chrome.contextMenus.create({"title": 'nico DL Manager', "contexts":['all'], "onclick": genericOnClick});
+    if(THK==undefined) {
+        console.log("THK.js not avalible...");
+    } else {
+        THK.init();
+        THK.onMenuListClick(aTab.url);
+        
+        startDownload(THK.video_url, THK.flapi_params, THK.thumb);
+    }
+    
+    
+}
+
+function nicoDLMenuOnClick(info, tab){
+    chrome.tabs.getSelected( null , prepareDownload ); 
+}
+
+function setMenuList( aTabId , aChangeInfo ) {
+    chrome.contextMenus.removeAll();
+    chrome.tabs.get( aTabId , function( aTab ) {
+        if( isNicoURL(aTab.url) ) {
+            var _lang = getLang();
+            var id = chrome.contextMenus.create({"title": _locale[_lang]['MenuListTitle'], "contexts":['all'], "onclick": nicoDLMenuOnClick});
+        }
     });
 }
-*/
