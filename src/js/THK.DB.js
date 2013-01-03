@@ -273,6 +273,19 @@ THK.DB = (function() {
             });
         },
         
+        /**
+         * arr{ title: , dir: , comment: , video_id: }
+        **/
+        updateByEdit: function(arr, callback) {
+            _db.transaction(function(tx) {
+                tx.executeSql("UPDATE dlist set title = ?, dir = ?, comment = ? where video_id = ?", [arr.title, arr.dir, arr.comment, arr.video_id], function(tx, rs) {
+                    if(typeof callback=="function") callback(rs);
+                });
+            }, function(err){
+               console.warn(err.message);
+            });
+        },
+        
         updateDlistDirPathByVID: function(vid, path, callback) {
             _db.transaction(function(tx) {
                 tx.executeSql("UPDATE dlist set dir = ? where video_id = ?", [path, vid], function(tx, rs) {

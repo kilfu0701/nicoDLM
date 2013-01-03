@@ -33,6 +33,9 @@ var _locale = {
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': 'Download Douga (nicoDLM)',
+        'videoTitle': 'Title',
+        'videoPath': 'Directory',
+        'videoComment': 'Description',
     },
     
     'en': {
@@ -63,6 +66,9 @@ var _locale = {
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': 'Download Douga (nicoDLM)',
+        'videoTitle': 'Title',
+        'videoPath': 'Directory',
+        'videoComment': 'Description',
     },
     
     'zh-TW': {
@@ -93,6 +99,9 @@ var _locale = {
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': '下載動畫 (nicoDLM)',
+        'videoTitle': '標題',
+        'videoPath': '影片位置',
+        'videoComment': '簡介',
     },
     
     'ja-JP': {
@@ -123,6 +132,9 @@ var _locale = {
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': '動画をDL (nicoDLM)',
+        'videoTitle': 'タイトル',
+        'videoPath': '動画パス',
+        'videoComment': '紹介',
     }
 };
 
