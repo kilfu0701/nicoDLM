@@ -34,7 +34,7 @@ var _locale = {
         'dl_status_404': 'Not Found',
         'MenuListTitle': 'Download Douga (nicoDLM)',
         'videoTitle': 'Title',
-        'videoPath': 'Directory',
+        'videoPath': 'Location',
         'videoComment': 'Description',
     },
     
@@ -67,7 +67,7 @@ var _locale = {
         'dl_status_404': 'Not Found',
         'MenuListTitle': 'Download Douga (nicoDLM)',
         'videoTitle': 'Title',
-        'videoPath': 'Directory',
+        'videoPath': 'Location',
         'videoComment': 'Description',
     },
     

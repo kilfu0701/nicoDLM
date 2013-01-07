@@ -11,6 +11,27 @@ $xml_data =<<< EOT
   </packet>
 EOT;
 
+$JP =<<< EOT
+  <packet>
+    <thread thread="1309980706" version="20090904" user_id="30215686" scores="1" nicoru="1"/>
+    <thread_leaves thread="1309980706" user_id="30215686" scores="1" nicoru="1">0-4:100,250</thread_leaves>
+  </packet>
+EOT;
+
+$zh_TW =<<< EOT
+  <packet>
+    <thread thread="1309980706" version="20090904" user_id="30215686" scores="1" nicoru="1" language="2"/>
+    <thread_leaves thread="1309980706" user_id="30215686" scores="1" nicoru="1" language="2">0-4:100,250</thread_leaves>
+  </packet>
+EOT;
+
+$EN =<<< EOT
+  <packet>
+    <thread thread="1309980706" version="20090904" user_id="30215686" scores="1" nicoru="1" language="1"/>
+    <thread_leaves thread="1309980706" user_id="30215686" scores="1" nicoru="1" language="1">0-4:100,250</thread_leaves>
+  </packet>
+EOT;
+
 $url = "http://msg.nicovideo.jp/30/api/";
 $header[] = "Content-type: text/xml";
 $ch = curl_init();

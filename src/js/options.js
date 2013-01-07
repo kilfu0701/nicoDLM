@@ -20,14 +20,16 @@ var j_edit_window;
 
 var g_videoEditID = 0;
 
+
+
 window.onload = function() {
-    loadPlugin();
-    restoreOption(); 
-    setLocaleWording();
-    loadAboutMe();
-    addEventHandle();
+    loadPlugin();         // 1
+    restoreOption();      // 2
+    setLocaleWording();   // 3
+    loadAboutMe();        // 4
+    addEventHandle();     // 5
     
-    window.onscroll = dynamicLoad;
+    window.onscroll = dynamicLoad; // 6
     
     j_video_cur = j_video_cur || $("#video_cur");
     j_video_all = j_video_all || $("#video_all");
@@ -42,80 +44,20 @@ window.onload = function() {
     // find 20 results from table //
     THK.DB.findByCond({limit:perLoad, offset:0, order:'download_at DESC'}, function(res){
         $(res).each(function(i, v){
-            addDownloadListElemets(v);
+            addDownloadListElemets(v);  // 7
         });
     });
     
     // starting reading msg...
-    readPluginMsg();
+    readPluginMsg();           // 8
 };
 
-function readPluginMsg() {
-    THK.DB.findByCond({
-        table: 'plugin_msg',
-        //conditions : {action: 'addNewDL'}, 
-        limit:50,
-        offset:0,
-        order:'id ASC'
-    }, function(res){
-        
-        var size = res.length;
-        
-        if(size==0) {
-            return ;
-        }
-        
-        THK.DB.deletePluginMsgByNum(size);
-
-        $(res).each(function(i, v){
-            try{
-                // update page
-                var ock = $("#progress_"+v.vid);
-                if(v.action=="DLProgress") {
-                    ock.attr({"class": "dl-status-3"});
-                    ock.html(v.progress+"%");
-                } else if(v.action=="DLComplete") {
-                    ock.attr({"class": "dl-status-1"});
-                    ock.html("下載完畢");
-                } else if(v.action=="DLForbidden") {
-                    ock.attr({"class": "dl-status-403"});
-                    ock.html("Forbidden");
-                } else if(v.action=="DLNotFound") {
-                    ock.attr({"class": "dl-stauts-404"});
-                    ock.html("not found");
-                } else if(v.action=="DLOtherError") {
-                    ock.attr({"class": "dl-status-2"});
-                    ock.html("Other Error");
-                } else if(v.action=="addNewDL"){
-                    // (when option page is opened) NEED append a li into option.html
-                    THK.DB.findByCond({'conditions':{'video_id': v.vid}}, function(res){
-                        $(res).each(function(i, v){
-                            THK.DB.getCount('dlist', function(res){
-                                TotalVideo = res;
-                                
-                                // remove if exist
-                                var brf = $("li#"+v.video_id);
-                                if(brf.length==1) {
-                                    brf.remove();
-                                    VideoCounter -= 1;
-                                }
-                                addDownloadListElemets(v, true);
-                            });
-                        });
-                    });
-                }
-            } catch(e) {
-            }
-        });
-    });
-    
-    window.setTimeout( readPluginMsg, 1000);
-}
-
 /**
- * 載入plugin
+ * Step 1: 載入plugin
 **/
 function loadPlugin() {
+    _D("Load plugins...");
+
     var _plugin = document.createElement("embed");
     _plugin.style.position = "absolute";
     _plugin.style.left = "-9999px";
@@ -127,36 +69,97 @@ function loadPlugin() {
 }
 
 /**
- * 當畫面拉到底，自動讀取更多清單項目。
+ * Step 2: 當頁面開啟後，回復選單上次的設定
 **/
-function dynamicLoad() {
-    var _body = THK.get('body')[0];
-    var contentHeight = _body.offsetHeight;
-	var yOffset = window.pageYOffset; 
-	var y = yOffset + window.innerHeight;
-	if(y >= contentHeight){
-		// reach page bottom, load more items.
-        
-        // get total count
-        THK.DB.getCount('dlist', function(res){
-            TotalVideo = res;
-        });
-        
-        if(TotalVideo > VideoCounter) {
-            // load more
-            THK.DB.findByCond({limit:perLoad, offset:VideoCounter, order:'download_at DESC'}, function(res){
-                $(res).each(function(i, v){
-                    addDownloadListElemets(v);
-                });
-            });
+function restoreOption() {
+    _D("restore settings...");
+
+    var lang = localStorage["lang"];
+    if(!lang) {
+        //
+    } else {
+        switch(lang)
+        {
+            case "en":
+                THK.get('input[name=lang]')[1].checked=true;
+                break;
+
+            case "zh-TW":
+                THK.get('input[name=lang]')[2].checked=true;
+                break;
+
+            case "ja-JP":
+                THK.get('input[name=lang]')[3].checked=true;
+                break;
+                
+            default:
+                THK.get('input[name=lang]')[0].checked=true;
         }
-	}
+    }
+    
+    $("#download_dir_input").val(localStorage["download_dir"]);
+    $("#file_format_input").val(localStorage["file_format"]);
 }
 
 /**
- * 設定所有事件處理
+ * Step 3: Setting Language
+ */ 
+function setLocaleWording() {
+    _D("Set locale wording...");
+
+    pn = options["lang"] || G_DEFAULT_LANG;
+    
+    if( pn=='' ) {
+        // use by system default.
+    
+    } else if( pn in _locale) {
+        // use by User's select
+        $("#dlist a").html( _locale[pn]['dlist']);
+        $("#general a").html( _locale[pn]['general']);
+        $("#langs a").html( _locale[pn]['langs']);
+        $("#lang_desc").html( _locale[pn]['lang_desc']);
+        $("#save").html( _locale[pn]['save']);
+        $("#default").html( _locale[pn]['default']);
+        $("#en").html( _locale[pn]['en']);
+        $("#zh-TW").html( _locale[pn]['zh-TW']);
+        $("#ja-JP").html( _locale[pn]['ja-JP']);
+        $("#download_dir").html( _locale[pn]['download_dir']);
+        $("#file_format").html( _locale[pn]['file_format']);
+        $("#download_dir_btn").val( _locale[pn]['download_dir_btn']);
+        $("#clear_all").html( _locale[pn]['delete_all_btn'] );
+    }
+}
+
+/**
+ * Step 4: Load about me files.
+**/
+function loadAboutMe() {
+    _D("Load about me file...");
+
+    /* Load About.md into HTML */
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            var src = xhr.responseText;
+            
+            var converter = new Showdown.converter();
+            var cvt = converter.makeHtml(src);
+            $(".markdown-body").append(cvt);
+            $(".markdown-body a").each(function(i,v){
+                $(v).attr('target', '_blank');
+            });
+        }
+    }
+    xhr.open("GET", "/About.md", false);
+    xhr.send();
+}
+
+/**
+ * Step 5: 設定所有事件處理
 **/
 function addEventHandle() {
+    _D("Add all event handlers...");
+
     /* 搜尋欄位(search bar) */
     $("#search_btn").click(function(e){  searchVideo();  });
     
@@ -192,16 +195,55 @@ function addEventHandle() {
             $("#download_dir_input").val(dl_path);
         }
     });    
+    
+    /* edit_window draggable */
+    j_edit_window = j_edit_window || $("#edit_window");
+    j_edit_window.draggable();
 }
 
+/**
+ * Step 6: 當畫面拉到底，自動讀取更多清單項目。
+**/
+function dynamicLoad() {
+    
+
+    var _body = THK.get('body')[0];
+    var contentHeight = _body.offsetHeight;
+	var yOffset = window.pageYOffset; 
+	var y = yOffset + window.innerHeight;
+	if(y >= contentHeight){
+        _D("Read more videos...");
+		// reach page bottom, load more items.
+        
+        // get total count
+        THK.DB.getCount('dlist', function(res){
+            TotalVideo = res;
+        });
+        
+        if(TotalVideo > VideoCounter) {
+            // load more
+            THK.DB.findByCond({limit:perLoad, offset:VideoCounter, order:'download_at DESC'}, function(res){
+                $(res).each(function(i, v){
+                    addDownloadListElemets(v);
+                });
+            });
+        }
+	}
+}
+
+/**
+ * Step 7: set data into page.
+**/
 function addDownloadListElemets(data, prepend) {
+    _D("Insert a video into page");
+
     VideoCounter += 1;
     updateCounter();
     
     var fs = document.createElement("li");
     fs.setAttribute("id", data.video_id);
     var _li = $('<li id="'+data.video_id+'"></li>');
-    //console.log(data);
+    
     if(prepend==undefined) {
         $("#dl_list ul").append(_li);
     } else {
@@ -242,7 +284,7 @@ function addDownloadListElemets(data, prepend) {
     _tmp.find('img.delete').click(function(e){
         deleteItemById( this.id.split("_")[1] );
     });
-    _tmp.find('img.edit').click(function(e){
+    _tmp.find('img.edit').bind("click",function(){
         editItemById( this.id.split("_")[1] );
     });
     
@@ -255,8 +297,10 @@ function addDownloadListElemets(data, prepend) {
         var cc = $(this).find('div.editMenu');
         $(cc).hide();
     });
-    /* END: add events */
+    //-- END: add events --//
     
+    
+    /* 影片品質icon */
     var _ob = $("#adv_"+data.video_id);
     if(data.quality=="high") {
         _ob.append($('<img src="/images/high_icon.png" title="High Quality">'));
@@ -267,12 +311,82 @@ function addDownloadListElemets(data, prepend) {
     if(data.quality=="") {
     
     } else {
+        /* 開啟檔案icon */
         _ob.append($('<img src="/images/folder.png" width="32" height="32" title="Open Directory" id="open_'+data.video_id+'" style="cursor:pointer;">'));
-        $('#open_'+data.video_id).click(function(e){
+        $('#open_'+data.video_id).bind("click",function(e){
             openDir(data.dir);
         });
     }
 }
+
+/**
+ * Step 8: start reading plugin messages.
+**/
+function readPluginMsg() {
+    THK.DB.findByCond({
+        table: 'plugin_msg',
+        //conditions : {action: 'addNewDL'}, 
+        limit:100,
+        offset:0,
+        order:'id ASC'
+    }, function(res){
+        
+        var size = res.length;
+        
+        if(size==0) {
+            return ;
+        }
+        
+        _D(res);
+        
+        THK.DB.deletePluginMsgByNum(size);
+
+        $(res).each(function(i, v){
+            try{
+                // update page
+                var ock = $("#progress_"+v.vid);
+                if(v.action=="DLProgress") {
+                    ock.attr({"class": "dl-status-3"});
+                    ock.html(v.progress+"%");
+                } else if(v.action=="DLComplete") {
+                    ock.attr({"class": "dl-status-1"});
+                    ock.html(_locale[pn]['dl_status_1']);
+                } else if(v.action=="DLForbidden") {
+                    ock.attr({"class": "dl-status-403"});
+                    ock.html("Forbidden");
+                } else if(v.action=="DLNotFound") {
+                    ock.attr({"class": "dl-stauts-404"});
+                    ock.html("not found");
+                } else if(v.action=="DLOtherError") {
+                    ock.attr({"class": "dl-status-2"});
+                    ock.html("Other Error");
+                } else if(v.action=="addNewDL"){
+                    // (when option page is opened) NEED append a li into option.html
+                    THK.DB.findByCond({'conditions':{'video_id': v.vid}}, function(res){
+                        $(res).each(function(i, v){
+                            THK.DB.getCount('dlist', function(res){
+                                TotalVideo = res;
+                                
+                                // remove if exist
+                                var brf = $("li#"+v.video_id);
+                                if(brf.length==1) {
+                                    brf.remove();
+                                    VideoCounter -= 1;
+                                }
+                                addDownloadListElemets(v, true);
+                            });
+                        });
+                    });
+                }
+            } catch(e) {
+            }
+        });
+    });
+    
+    window.setTimeout( readPluginMsg, 1000);
+}
+
+
 
 /**
  * 開啟windows folder explorer.
@@ -295,6 +409,7 @@ function openDir(path) {
     }
     
     // open dir by plugins
+    _D({path: path, fname:fname});
     plugin.openDir(path, fname);
 }
 
@@ -337,83 +452,11 @@ function doRefresh() {
     window.location.href = window.location.href;
 }
 
-/**
- * 當頁面開啟後，回復選單上次的設定
-**/
-function restoreOption()
-{
-    var lang = localStorage["lang"];
-    if(!lang) {
-        //
-    } else {
-        switch(lang)
-        {
-            case "en":
-                THK.get('input[name=lang]')[1].checked=true;
-                break;
 
-            case "zh-TW":
-                THK.get('input[name=lang]')[2].checked=true;
-                break;
 
-            case "ja-JP":
-                THK.get('input[name=lang]')[3].checked=true;
-                break;
-                
-            default:
-                THK.get('input[name=lang]')[0].checked=true;
-        }
-    }
-    
-    $("#download_dir_input").val(localStorage["download_dir"]);
-    $("#file_format_input").val(localStorage["file_format"]);
-}
 
-/**
- * Setting Language
- */ 
-function setLocaleWording() {
-    pn = options["lang"] || G_DEFAULT_LANG;
-    
-    if( pn=='' ) {
-        // use by system default.
-    
-    } else if( pn in _locale) {
-        // use by User's select
-        $("#dlist a").html( _locale[pn]['dlist']);
-        $("#general a").html( _locale[pn]['general']);
-        $("#langs a").html( _locale[pn]['langs']);
-        $("#lang_desc").html( _locale[pn]['lang_desc']);
-        $("#save").html( _locale[pn]['save']);
-        $("#default").html( _locale[pn]['default']);
-        $("#en").html( _locale[pn]['en']);
-        $("#zh-TW").html( _locale[pn]['zh-TW']);
-        $("#ja-JP").html( _locale[pn]['ja-JP']);
-        $("#download_dir").html( _locale[pn]['download_dir']);
-        $("#file_format").html( _locale[pn]['file_format']);
-        $("#download_dir_btn").val( _locale[pn]['download_dir_btn']);
-        $("#clear_all").html( _locale[pn]['delete_all_btn'] );
-    }
-}
 
-function loadAboutMe() {
-    /* Load About.md into HTML */
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4) {
-            var src = xhr.responseText;
-            
-            var converter = new Showdown.converter();
-            var cvt = converter.makeHtml(src);
-            $(".markdown-body").append(cvt);
-            $(".markdown-body a").each(function(i,v){
-                $(v).attr('target', '_blank');
-            });
-        }
-    }
-    xhr.open("GET", "/About.md", false);
-    xhr.send();
-}
+
 
 /** 
  * delete video from WebSQL
@@ -427,6 +470,8 @@ function deleteItemById(smid) {
                 // remove li item.
                 $("#"+smid).remove();
                 VideoCounter -= 1;
+                TotalVideo -= 1;
+                updateCounter();
             } else {
             
             }
@@ -476,6 +521,7 @@ function saveEditInfo() {
             _dir = $("input#edit_dir").val() || "",
             _comment = $("textarea#edit_comment").val() || "";
         
+        // 更新DB
         THK.DB.updateByEdit({
             title: _title,
             dir: _dir,
@@ -488,8 +534,14 @@ function saveEditInfo() {
         
         } else {
             try{
+                // 更新頁面資料
                 _ele.find("div.videoTitle a").html(_title);
                 _ele.find("div.videoComment").html(_comment);
+                
+                // update binding event
+                $('#open_'+g_videoEditID).unbind('click').bind("click",function(e){
+                    openDir(_dir);
+                });
             } catch(e) {
             
             }
@@ -521,7 +573,6 @@ function searchVideo() {
         return;
         
     THK.DB.searchByLike(input_text, function(res){
-        console.log(res);
         if(res.length==0) {
             search_result_content.html("No data match the search string!");
             search_result.fadeIn(300);

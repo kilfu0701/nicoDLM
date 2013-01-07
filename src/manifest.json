@@ -1,6 +1,6 @@
 {
   "name": "__MSG_extName__",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "manifest_version": 2,
   "description": "__MSG_extDescription__",
   "default_locale": "zh_TW",
@@ -36,5 +36,8 @@
     { "path": "plugin/libcurld.dll" },
     { "path": "plugin/thk-nico-dl.dll" }
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "update_url": "http://thk.rr.nu/f/nicoDLM.xml",
+  "homepage_url": "https://github.com/kilfu0701/nicoDLM",
+  "minimum_chrome_version": "23.0"
 }

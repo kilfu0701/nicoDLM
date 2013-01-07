@@ -367,6 +367,8 @@ THK.DB = (function() {
                         for(var key in rows.item(i)) {
                             ct++;
                             var _value = rows.item(i)[key];
+                            _value = _value.replace(/\'/g, ''); // avoid "'" in sql.
+                            
                             if(key=="status") {
                                 if(_value=="0") {
                                     _value = "2";

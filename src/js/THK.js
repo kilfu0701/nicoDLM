@@ -11,6 +11,24 @@
 var FLAPI_URL = "http://flapi.nicovideo.jp/api/getflv"; // get movie api URL
 var FLAPI_URL2 = "http://flapi.nicovideo.jp/api/getflv?v=%s&ts=%d&as3=1"; 
 var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
+//var riAPI_URL = "http://riapi.nicovideo.jp/api/watch/getvideoreview?video_id=nm16791686&offset=0"
+
+/*
+style 1:
+  mode:list
+  contentsId:nm16791686
+  offset:0
+  length:4
+  reloadFlag:false
+  user_session:user_session_595548_154404738271678611
+  
+style 2:
+  mode:side
+  watchId:nm16791686
+  reloadFlag:false
+  user_session:user_session_595548_154404738271678611
+*/
+//var niCMD_URL = "http://nicmd.nicovideo.jp/Api/index"; // POST !
 
 (function(window, undefined) {
     var document = window.document,
@@ -55,6 +73,29 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
 
     
     /**
+     * for Debug
+    **/
+    if( G_DEBUG==undefined) 
+        var G_DEBUG = false;
+    
+    if( _D==undefined ) {
+        function _D(object){
+            try { 
+                if(G_DEBUG==false)
+                    return ;
+                
+                throw Error('') 
+            } catch(err) {
+                var caller_line = err.stack.split("\n")[3];
+                var index = caller_line.indexOf("at ");
+                var clean = caller_line.slice(index+2, caller_line.length);
+                console.log("%o  "+clean, object);
+            }
+        }
+    }
+    
+    
+    /**
      * Build THK Class
      */
     if(typeof THK=='undefined'){
@@ -71,7 +112,7 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
         THK.debug = true;
         
         THK.init = function() {
-        
+            _D("Init THK...");
         }
                 
         /** 
@@ -119,8 +160,7 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
                                                           movieInfo: THK.movie_info,
                                                           movieThumb: THK.thumb,
                                                           flapiInfo: THK.flapi_params }, function(response) {
-                                //_resp = response;
-                                //console.log("_resp=%o", _resp);
+                                //_D(response);
                             });
                         }
                     };
@@ -149,7 +189,7 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
                         }
                     }
                     catch(e){
-                        console.log("Error :" + e);
+                        _D("Error :" + e);
                     }
                 }
             }        
@@ -174,7 +214,7 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
                 }
             }
             catch(e){
-                console.log("Error :" + e);
+                _D("Error :" + e);
             }
         }
         
@@ -246,10 +286,10 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
                             });
                             
                         } catch(e) {
-                            console.warn(e);
+                            _D(e);
                         }
                     } else {
-                        console.warn("jquery not found");
+                        _D("jquery not found");
                     }
                 }
             }
@@ -354,7 +394,7 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
                 return ret;
                 
             } catch(e) {
-                console.log(e);
+                _D(e);
                 return ret; // Error Occur! 
             }
         }
@@ -379,7 +419,7 @@ var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
         if(params==undefined) return ;
         
         chrome.extension.sendRequest(params, function(response) {
-            //console.log(response);
+            //_D(response);
         });
     }
     

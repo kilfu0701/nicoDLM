@@ -93,12 +93,12 @@ div.inner_div3 { float:left; width:140px; height:114px; padding:3px; position:re
 
 /* edit_window */  
 #edit_window {
-    position: absolute;
+    position: fixed;
     width: 650px;
     min-height: 10px;
     background-color: #F6F6F6;
-    top: 105px;
-    left: 200px;
+    top: 20%;
+    left: 15%;
     border: solid 2px #AAA;
     z-index: 10;
     display: none;

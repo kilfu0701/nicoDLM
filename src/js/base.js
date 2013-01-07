@@ -3,11 +3,14 @@
  * 基本函式, 常數 
 **/
 
+/* For debug. */
+var G_DEBUG = false;
+
 /* Global Vars */
 var G_DL_DIR = "C:/",
     G_DEFAULT_LANG = "default",
-    VERSION = '0.1.4',
-    RELEASE = '2012/12/26';
+    VERSION = '0.1.5-draft',
+    RELEASE = '2013/1/7';
 
 
 var NICO_URL = "www.nicovideo.jp/watch/";
@@ -124,3 +127,21 @@ function str2ab(str) {
     }
     return buf;
 }
+
+/**
+ * for Debug
+**/
+function _D(object){
+    try { 
+        if(G_DEBUG==false)
+            return ;
+        
+        throw Error('') 
+    } catch(err) {
+        var caller_line = err.stack.split("\n")[3];
+        var index = caller_line.indexOf("at ");
+        var clean = caller_line.slice(index+2, caller_line.length);
+        console.log("%o  "+clean, object);
+    }
+}
+
