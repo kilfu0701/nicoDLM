@@ -99,6 +99,17 @@ function restoreOption() {
     
     $("#download_dir_input").val(localStorage["download_dir"]);
     $("#file_format_input").val(localStorage["file_format"]);
+    $("#comment_file_format_input").val(localStorage["comment_file_format"]);
+    
+    var elem = THK.get('input[name=comment_lang_n]');
+    for(var i=0; i<3; i++) {
+        if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
+            elem[i].checked=true;
+        }
+    }
+    
+    $("select#save_action").val(localStorage["saveFileAction"]);
+    
 }
 
 /**
@@ -125,8 +136,16 @@ function setLocaleWording() {
         $("#ja-JP").html( _locale[pn]['ja-JP']);
         $("#download_dir").html( _locale[pn]['download_dir']);
         $("#file_format").html( _locale[pn]['file_format']);
+        $("#comment_file_format").html( _locale[pn]['comment_file_format']);
         $("#download_dir_btn").val( _locale[pn]['download_dir_btn']);
         $("#clear_all").html( _locale[pn]['delete_all_btn'] );
+        $("#comment_lang_en_span").html( _locale[pn]['en'] );
+        $("#comment_lang_jp_span").html( _locale[pn]['ja-JP'] );
+        $("#comment_lang_tw_span").html( _locale[pn]['zh-TW'] );
+        $("#comment_lang").html( _locale[pn]['comment_lang'] );
+        $("#if_file_exist").html( _locale[pn]['if_file_exist'] );
+        $("#overwrite").html( _locale[pn]['overwrite'] );
+        $("#saveNew").html( _locale[pn]['save_new'] );
     }
 }
 
@@ -426,6 +445,21 @@ function saveOption() {
     }
     
     localStorage["download_dir"] = $("#download_dir_input").val() || G_DL_DIR;
+    localStorage["file_format"] = $("#file_format_input").val() || G_FILE_FORMAT;
+    localStorage["comment_file_format"] = $("#comment_file_format_input").val() || G_COMMENT_FILE_FORMAT;
+    
+    var _lang = 0;
+    if( $("#comment_lang_jp")[0].checked==true ) 
+        _lang += 1;
+    
+    if( $("#comment_lang_en")[0].checked==true ) 
+        _lang += 2;
+       
+    if( $("#comment_lang_tw")[0].checked==true ) 
+        _lang += 4;
+    
+    localStorage["comments_for_download"] = _lang || 1;
+    localStorage["saveFileAction"] = $("select#save_action option:selected")[0].value;
     
     THK.get("#save").style.display = 'block';
     window.setTimeout( doRefresh, 1000);
@@ -451,12 +485,6 @@ function clearDownloadList() {
 function doRefresh() {
     window.location.href = window.location.href;
 }
-
-
-
-
-
-
 
 /** 
  * delete video from WebSQL
@@ -631,4 +659,17 @@ function importList() {
     // start reading.... 
     file_reader.readAsText(file.files[0]);
     window.setTimeout( doRefresh, 1000);
+}
+
+/**
+ * from plugin call back
+**/
+function plugin_callback() {
+    if(arguments.length > 0) {
+        var _action = arguments[0];
+    }
+    
+    if(_action=="FileNotExist") {
+        alert( _locale[pn]['fileNotExist'] );
+    }
 }

@@ -19,6 +19,7 @@
 .markdown-body>h2:first-child,.markdown-body>h1:first-child,.markdown-body>h1:first-child+h2,.markdown-body>h3:first-child,.markdown-body>h4:first-child,.markdown-body>h5:first-child,.markdown-body>h6:first-child{margin-top:0;padding-top:0}
 .markdown-body a:first-child h1,.markdown-body a:first-child h2,.markdown-body a:first-child h3,.markdown-body a:first-child h4,.markdown-body a:first-child h5,.markdown-body a:first-child h6{margin-top:0;padding-top:0}
 .markdown-body h1+p,.markdown-body h2+p,.markdown-body h3+p,.markdown-body h4+p,.markdown-body h5+p,.markdown-body h6+p{margin-top:0}
+.markdown-body li {padding-bottom:5px;}
 .markdown-body li p.first{display:inline-block}.markdown-body ul,.markdown-body ol{padding-left:30px}
 .markdown-body ul.no-list,.markdown-body ol.no-list{list-style-type:none;padding:0}
 .markdown-body ul li>:first-child,.markdown-body ul li ul:first-of-type,.markdown-body ol li>:first-child,.markdown-body ol li ul:first-of-type{margin-top:0px}

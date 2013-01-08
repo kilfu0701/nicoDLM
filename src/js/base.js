@@ -9,8 +9,10 @@ var G_DEBUG = false;
 /* Global Vars */
 var G_DL_DIR = "C:/",
     G_DEFAULT_LANG = "default",
-    VERSION = '0.1.5-draft',
-    RELEASE = '2013/1/7';
+    G_FILE_FORMAT = "[%ID%] %TITLE%",
+    G_COMMENT_FILE_FORMAT = "[%ID%] %TITLE% [%COMMENT%]",
+    VERSION = '0.1.5',
+    RELEASE = '2013/1/8';
 
 
 var NICO_URL = "www.nicovideo.jp/watch/";
@@ -79,9 +81,9 @@ function getTimestamp() {
 }
 
 function getDate(ts) {
-    var timestamp = ts || getTimestamp() || 1301090400
-      , date = new Date(timestamp * 1000)
-      , datevalues = [
+    var timestamp = ts || getTimestamp() || 1301090400,
+        date = new Date(timestamp * 1000),
+        datevalues = [
              date.getFullYear()
             ,date.getMonth()+1
             ,date.getDate()
@@ -89,7 +91,7 @@ function getDate(ts) {
             ,date.getMinutes()
             ,date.getSeconds()
          ];
-    //console.log(datevalues);
+    
     return datevalues;
 }
 

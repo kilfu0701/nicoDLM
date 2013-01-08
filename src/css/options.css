@@ -38,11 +38,13 @@ button#clear_all, input#export, input#import, input#import_file {
 #dl_list { float:left; display:block; min-width:1000px; }
 #dl_list ul li { height:120px; list-style-type: none; padding:4px; }
 
-#opt_lang, #opt_gen, #about_nicoDLM { text-align: left; }
+#opt_lang, 
+#opt_gen, 
+#about_nicoDLM { 
+    text-align: left;
+}
 
-div#download_dir,
-div#file_format { width: 220px; height:20px; padding-top:6px; float:left; }
-
+#opt_gen > div > div { width: 220px; height:20px; padding-top:6px; float:left; }
 
 div.dl-status-0,
 div.dl-status-1,

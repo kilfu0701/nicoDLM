@@ -18,19 +18,17 @@ var nicoAppDir;
 window.onload = function() {
     loadPlugin();
     Initialize();
-    
-
 }
 
 /**
  * enable functions:
- *    dl (url, filename, ext, path, video_id)          -- video download function
+ *    dl (url, filename, ext, path, video_id, overwrite)     -- video download function
  *
- *    dlComment (url, filename, ext, path, thread_id)  -- comment download
+ *    dlComment (url, filename, ext, path, thread_id, lang)  -- comment download
  *
- *    getValueForURL (url)                             -- get cookie
+ *    getValueForURL (url)                                   -- get cookie
  *
- *    saveTextFile (fullpath, text)                    -- save a text file
+ *    saveTextFile (fullpath, text)                          -- save a text file
  *
  *    
 **/
@@ -68,16 +66,42 @@ function resetAutoInc() {
 function Initialize() {
     nicoAppDir = fs2.getAppDir() || G_DL_DIR;
 
+    // 語言環境設定
     if(localStorage["lang"]==undefined) {
         localStorage["lang"] = "default";
     }
     
+    // 檔案儲存位置
     if(localStorage["download_dir"]==undefined) {
         localStorage["download_dir"] = nicoAppDir;
     }
     
+    // video檔案存檔命名
     if(localStorage["file_format"]==undefined) {
         localStorage["file_format"] = "[%ID%] %TITLE%";
+    }
+    
+    // comment檔案存檔命名
+    if(localStorage["comment_file_format"]==undefined) {
+        localStorage["comment_file_format"] = "[%ID%] %TITLE% [%COMMENT%]";
+    }
+    
+    // 檔案存在時的動作,  0=另存  1=覆蓋(overwrite)
+    if(localStorage["saveFileAction"]==undefined) {
+        localStorage["saveFileAction"] = 0;
+    }
+    
+    /* 字幕檔下載設定(1~7)
+         1 = JP
+         2 = EN
+         3 = JP+EN
+         4 = TW
+         5 = JP+TW
+         6 = EN+TW
+         7 = ALL
+    */
+    if(localStorage["comments_for_download"]==undefined) {
+        localStorage["comments_for_download"] = 1;
     }
     
     // update DB 'dlist' all status = 2(cancel), if status = 0.(add new)
@@ -90,7 +114,6 @@ function Initialize() {
  * Load plugin into page. 
 **/
 function loadPlugin() {
-    //console.log('load plugin...');
     this.fs = document.createElement("embed");
     this.fs.style.position = "absolute";
     this.fs.style.left = "-9999px";
@@ -134,7 +157,6 @@ function plugin_callback() {
             THK.DB.updateDlistStatusByVID(arguments[1], 2);
         }
         
-        
     }
 }
 
@@ -162,20 +184,13 @@ chrome.extension.onRequest.addListener(
         //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
                 
         if (request.greeting == "movieURL") {
-            //var movieObj = request.movieInfo;
-            //var movieThumb = request.movieThumb;
-            //var flapi = request.flapiInfo;
-            
             mvurls = request.movieInfo['mvUrl'];
             
             if(mvurls==undefined) {
                 sendResponse({farewell: "failed"});
             } else {
-                
-            
                 startDownload(mvurls, request.flapiInfo, request.movieThumb);
                 sendResponse({farewell: "ok"});
-
             }
         } else if(request.greeting == "getLang") {
             var _lang = getLang();
@@ -210,10 +225,23 @@ function startDownload(movieURL, flapiInfo, movieThumb) {
 
             /* start download by plugin. */
             var _ext = movieThumb.movie_type || "thk";
-            var DLcode = fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id);
+            var DLcode = fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id, ""+localStorage["saveFileAction"]);
             
-            /* download commnet */
-            fs2.dlComment(flapiInfo.ms, _fname, ".xml", dir_path, flapiInfo.thread_id);
+            /* download commnet 
+                    1 = JP
+                    2 = EN
+                    3 = JP+EN
+                    4 = TW
+                    5 = JP+TW
+                    6 = EN+TW
+                    7 = ALL
+            */
+            for(var i=0; i<3; i++) {
+                if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
+                    var _cmtName = generateDownloadFileFormat(movieThumb, i)
+                    fs2.dlComment(flapiInfo.ms, _cmtName, ".xml", dir_path, flapiInfo.thread_id, ""+i); // here must put as String.
+                }
+            }
             
             if(DLcode=="dl") {
                 var lang = getLang();
@@ -222,7 +250,7 @@ function startDownload(movieURL, flapiInfo, movieThumb) {
             
             }
         } else {
-            alert('already add into download list');
+            alert(_locale[pn]['already_added']);
         }
     });
 }
@@ -230,12 +258,30 @@ function startDownload(movieURL, flapiInfo, movieThumb) {
 
 /**
  * filename formatting 
+ *  @vinfo:
+ *  @type : undefined=video , 0=JP, 1=EN, 2=TW
 **/
-function generateDownloadFileFormat(vinfo) {
-    var _format = localStorage["file_format"];
+function generateDownloadFileFormat(vinfo, type) {
+    var commentLang = new Array('JP', 'EN', 'TW');
+    
+    var _format;
+    if(type==undefined) {
+        _format = localStorage["file_format"];
+    } else {
+        _format = localStorage["comment_file_format"];
+    }
+    
     var ret = _format.replace("%ID%", vinfo.video_id);
     ret = ret.replace("%TITLE%", vinfo.title);
     
+    if(type==undefined) {
+        ret = ret.replace("%COMMENT%", "");
+    } else if (type>=0 && type <=2) {
+        ret = ret.replace("%COMMENT%", commentLang[type]);
+    } else {
+    
+    }
+    console.log(ret);
     return ret;
 }
 
@@ -253,7 +299,6 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 /**
  * Insert a menu into right-click MenuList.
 **/
-// NEW for version 0.1.4, will be implement after.
 chrome.tabs.onUpdated.addListener( setMenuList );
 chrome.tabs.onSelectionChanged.addListener( setMenuList );
 

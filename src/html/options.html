@@ -57,12 +57,28 @@
         <div class="tab-page">
             <h2 class="tab" id="general">一般設定(General)</h2>
             <div id="opt_gen" class="clearfix">
-                <div>
+                <div class="clearfix">
                      <div id="download_dir">下載檔案目錄位置:</div><input type="text" name="download_dir" value="" size="35" id="download_dir_input">
                      <input type="button" id="download_dir_btn" value="變更...">
                 </div>
-                <div>
-                    <div id="file_format">檔案名稱格式</div><input type="text" name="file_format" value="" size="35" id="file_format_input">
+                <div class="clearfix">
+                    <div id="file_format">檔案命名格式</div><input type="text" name="file_format" value="" size="35" id="file_format_input">
+                </div>
+                <div class="clearfix">
+                    <div id="if_file_exist">影片檔存在時:</div>
+                    <select id="save_action">
+                        <option id="overwrite" value="1">覆蓋該檔案</option>
+                        <option id="saveNew" value="0">另存新檔</option>
+                    </select>
+                </div>
+                <div class="clearfix">
+                    <div id="comment_file_format">字幕檔案命名格式</div><input type="text" name="comment_file_format" value="" size="35" id="comment_file_format_input">
+                </div>
+                <div class="clearfix">
+                    <div id="comment_lang">字幕檔下載</div>
+                    <input type="checkbox" name="comment_lang_n" id="comment_lang_jp"><span id="comment_lang_jp_span">JP</span>
+                    <input type="checkbox" name="comment_lang_n" id="comment_lang_en"><span id="comment_lang_en_span">EN</span>
+                    <input type="checkbox" name="comment_lang_n" id="comment_lang_tw"><span id="comment_lang_tw_span">TW</span>
                 </div>
                 <button class="opt_btn">儲存 [Save]</button>
             </div>

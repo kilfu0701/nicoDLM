@@ -32,6 +32,10 @@ $EN =<<< EOT
   </packet>
 EOT;
 
+$TEST =<<< EOT
+    <thread thread="1309980706" version="20061206" res_from="-10" language="0" />
+EOT;
+
 $url = "http://msg.nicovideo.jp/30/api/";
 $header[] = "Content-type: text/xml";
 $ch = curl_init();
@@ -39,7 +43,7 @@ curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $xml_data);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $TEST);
 $response = curl_exec($ch);
 if(curl_errno($ch))
 {

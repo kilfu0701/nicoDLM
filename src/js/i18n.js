@@ -23,6 +23,7 @@ var _locale = {
         'delete_confirm': 'Remove this Video Infomations from Database ?',
         'download_dir': 'Download Directory:',
         'file_format': 'File Name Format:',
+        'comment_file_format': 'Comments Name Format:',
         'download_dir_btn': 'Change...',
         'addIntoDLSuccess': 'Add this video into Download List.',
         'delete_all_confirm': 'Are you sure you want clear all data?',
@@ -36,6 +37,12 @@ var _locale = {
         'videoTitle': 'Title',
         'videoPath': 'Location',
         'videoComment': 'Description',
+        'fileNotExist': 'file not exist...',
+        'already_added': 'This video is downloading now...',
+        'comment_lang': 'Comments Download',
+        'if_file_exist': 'If File exists:',
+        'overwrite': 'Overwrite',
+        'save_new': 'Save into new file',
     },
     
     'en': {
@@ -56,6 +63,7 @@ var _locale = {
         'delete_confirm': 'Remove this Video Infomations from Database ?',
         'download_dir': 'Download Directory:',
         'file_format': 'File Name Format:',
+        'comment_file_format': 'Comments Name Format:',
         'download_dir_btn': 'Change...',
         'addIntoDLSuccess': 'Add this video into Download List.',
         'delete_all_confirm': 'Are you sure you want clear all data?',
@@ -69,6 +77,12 @@ var _locale = {
         'videoTitle': 'Title',
         'videoPath': 'Location',
         'videoComment': 'Description',
+        'fileNotExist': 'file not exist...',
+        'already_added': 'This video is downloading now...',
+        'comment_lang': 'Comments Download',
+        'if_file_exist': 'If File exists:',
+        'overwrite': 'Overwrite',
+        'save_new': 'Save into new file',
     },
     
     'zh-TW': {
@@ -89,6 +103,7 @@ var _locale = {
         'delete_confirm': '從資料庫刪除此影片資訊?',
         'download_dir': '下載檔案目錄位置:',
         'file_format': '檔案命名格式:',
+        'comment_file_format': '字幕檔命名格式:',
         'download_dir_btn': '變更...',
         'addIntoDLSuccess': '新增此影片到下載清單.',
         'delete_all_confirm': '確定要刪除所有清單資料?',
@@ -102,6 +117,12 @@ var _locale = {
         'videoTitle': '標題',
         'videoPath': '影片位置',
         'videoComment': '簡介',
+        'fileNotExist': '此檔案不存在',
+        'already_added': '此檔案正在下載中...',
+        'comment_lang': '字幕檔下載',
+        'if_file_exist': '影片檔存在時:',
+        'overwrite': '覆寫該檔案',
+        'save_new': '另存新檔',
     },
     
     'ja-JP': {
@@ -122,6 +143,7 @@ var _locale = {
         'delete_confirm': 'DBから動画情報を削除する？',
         'download_dir': 'DLフォルダのパス:',
         'file_format': 'ファイル名前フォーマット:',
+        'comment_file_format': 'コメント名前フォーマット:',
         'download_dir_btn': '変更...',
         'addIntoDLSuccess': '動画をDLに追加しました！',
         'delete_all_confirm': '全部のデータを消しますか？',
@@ -135,6 +157,12 @@ var _locale = {
         'videoTitle': 'タイトル',
         'videoPath': '動画パス',
         'videoComment': '紹介',
+        'fileNotExist': 'ファイルが見つかりません！',
+        'already_added': 'この動画DL中...',
+        'comment_lang': 'コメントDL',
+        'if_file_exist': 'ファイルがいる時に:',
+        'overwrite': '上書き',
+        'save_new': '新しいに保存する',
     }
 };
 
