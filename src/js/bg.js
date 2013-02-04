@@ -18,6 +18,7 @@ var nicoAppDir;
 window.onload = function() {
     loadPlugin();
     Initialize();
+    runDLQueue();
 }
 
 /**
@@ -104,6 +105,11 @@ function Initialize() {
         localStorage["comments_for_download"] = 1;
     }
     
+    // download mode
+    if(localStorage["download_mode"]==undefined) {
+        localStorage["download_mode"] = 1;
+    }
+    
     // update DB 'dlist' all status = 2(cancel), if status = 0.(add new)
     THK.DB.initDlistAllStatus();
     THK.DB.initPluginMsg();
@@ -123,7 +129,6 @@ function loadPlugin() {
 
     fs2 = document.getElementById("fs2"); 
 }
-
 
 /**
  * from plugin call back, and write data into 'localStorage'
@@ -155,9 +160,43 @@ function plugin_callback() {
         } else if (_action=="DLError") {
             THK.DB.insertIntoPluginMsg( {action: _action, progress: 0, vid: arguments[1], msg:arguments[2]} );
             THK.DB.updateDlistStatusByVID(arguments[1], 2);
+        } else if (_action=="HQWaiting") {
+            THK.DB.insertIntoPluginMsg( {action: _action, progress: 0, vid: arguments[1], msg:arguments[2]} );
+            //THK.DB.updateDlistStatusByVID(arguments[1], 4);
         }
         
     }
+}
+
+/**
+ * 讀取download queue & start download.
+**/
+var queueID = 0;
+function runDLQueue() {
+    THK.DB.getCount("dl_queue", function(ct){
+        if(queueID>=ct) {
+            queueID = 0;
+        }
+        
+        THK.DB.findByCond({
+            table: 'dl_queue',
+            limit: 1,
+            offset: queueID
+        }, function(ret){
+            if(ret.length==1) {
+                prepareDownload({
+                    url: NICO_URL + ret[0].video_id, 
+                    fromQueue : true
+                });
+            }
+            queueID++;
+        });
+        
+    });
+    
+
+    
+    window.setTimeout( runDLQueue, 60*1000); // re-check per 1 minute.
 }
 
 
@@ -178,7 +217,7 @@ function getLang() {
 
 /**
  *  get Request from content scripts
- */
+**/
 chrome.extension.onRequest.addListener(   
     function(request, sender, sendResponse) {   
         //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
@@ -201,9 +240,9 @@ chrome.extension.onRequest.addListener(
     }
 ); 
 
-function startDownload(movieURL, flapiInfo, movieThumb) {
+function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
     THK.DB.findByVideoID(movieThumb.video_id, function(abr){
-        if(abr==undefined || abr.status!=0) {
+        if(abr==undefined || (abr.status!=4 && abr.status!=0 || fromQueue) ) {
             /* check video quality is high or low */
             if(movieURL.substr(-3)=="low") {
                 movieThumb.quality = "low";
@@ -216,41 +255,56 @@ function startDownload(movieURL, flapiInfo, movieThumb) {
                 //console.log(res);
             });
 
-            /* load page once at first.(not work?) */
-            //fs2.getValueForURL(movieThumb['watch_url']);
-            
-            /* filename for save. */
-            var _fname = generateDownloadFileFormat(movieThumb);
-            var dir_path = localStorage["download_dir"] || G_DL_DIR;
+            /* 判斷user設定的下載模式。如果是High Quality Only而且遇到經濟模式的情況，變更status=4. */
+            if(movieThumb.quality=="low" && localStorage["download_mode"]==1) {
+                THK.DB.updateDlistStatusByVID(movieThumb.video_id, 4);
+                THK.DB.addIntoDLQueue(movieThumb.video_id);
+                /* send a msg */
+                plugin_callback('HQWaiting', movieThumb.video_id, 'Wait HQ');
+            } else {
+                if(fromQueue!=undefined) {
+                    THK.DB.deleteFromDLQueue(movieThumb.video_id);
+                }
+                
+                /* load page once at first.(not work?) */
+                //fs2.getValueForURL(movieThumb['watch_url']);
+                
+                /* filename for save. */
+                var _fname = generateDownloadFileFormat(movieThumb);
+                var dir_path = localStorage["download_dir"] || G_DL_DIR;
 
-            /* start download by plugin. */
-            var _ext = movieThumb.movie_type || "thk";
-            var DLcode = fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id, ""+localStorage["saveFileAction"]);
-            
-            /* download commnet 
-                    1 = JP
-                    2 = EN
-                    3 = JP+EN
-                    4 = TW
-                    5 = JP+TW
-                    6 = EN+TW
-                    7 = ALL
-            */
-            for(var i=0; i<3; i++) {
-                if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
-                    var _cmtName = generateDownloadFileFormat(movieThumb, i)
-                    fs2.dlComment(flapiInfo.ms, _cmtName, ".xml", dir_path, flapiInfo.thread_id, ""+i); // here must put as String.
+                /* start download by plugin. */
+                var _ext = movieThumb.movie_type || "thk";
+                var DLcode = fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id, ""+localStorage["saveFileAction"]);
+                
+                /* download commnet 
+                        1 = JP
+                        2 = EN
+                        3 = JP+EN
+                        4 = TW
+                        5 = JP+TW
+                        6 = EN+TW
+                        7 = ALL
+                */
+                for(var i=0; i<3; i++) {
+                    if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
+                        var _cmtName = generateDownloadFileFormat(movieThumb, i)
+                        fs2.dlComment(flapiInfo.ms, _cmtName, ".xml", dir_path, flapiInfo.thread_id, ""+i); // here must put as String.
+                    }
+                }
+                
+                if(DLcode=="dl" && fromQueue==undefined) {
+                    var lang = getLang();
+                    alert(_locale[lang]['addIntoDLSuccess']);
+                } else {
+                
                 }
             }
-            
-            if(DLcode=="dl") {
-                var lang = getLang();
-                alert(_locale[lang]['addIntoDLSuccess']);
-            } else {
-            
-            }
         } else {
-            alert(_locale[pn]['already_added']);
+            if(fromQueue==undefined) {
+                var lang = getLang();
+                alert(_locale[lang]['already_added']);
+            }
         }
     });
 }
@@ -281,7 +335,7 @@ function generateDownloadFileFormat(vinfo, type) {
     } else {
     
     }
-    console.log(ret);
+
     return ret;
 }
 
@@ -309,13 +363,13 @@ function prepareDownload( aTab ) {
     //   First is re-new a THK object, and use it.
     //   Second is pass value from THK.js(content script).    
     
-    if(THK==undefined) {
-        console.log("THK.js not avalible...");
+    if(THK.Nico==undefined) {
+        console.log("THK.Nico.js not avalible...");
     } else {
-        THK.init();
-        THK.onMenuListClick(aTab.url);
-        
-        startDownload(THK.video_url, THK.flapi_params, THK.thumb);
+        THK.Nico.init();
+        THK.Nico.onMenuListClick(aTab.url);
+
+        startDownload(THK.Nico.video_url, THK.Nico.flapi_params, THK.Nico.thumb, aTab.fromQueue);
     }
     
     

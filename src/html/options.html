@@ -14,10 +14,11 @@
 <script type="text/javascript" src="/js/lib/showdown.js"></script>
 <script type="text/javascript" src="/js/lib/tabpane.js"></script>
 
-<script type="text/javascript" src="/js/base.js"></script>
 <script type="text/javascript" src="/js/i18n.js"></script>
 <script type="text/javascript" src="/js/THK.js"></script>
+<script type="text/javascript" src="/js/THK.Nico.js"></script>
 <script type="text/javascript" src="/js/THK.DB.js"></script>
+<!--script type="text/javascript" src="/js/THK.Validate.js"></script-->
 <script type="text/javascript" src="/js/options.js"></script>
 
 </head>
@@ -30,7 +31,7 @@
                     <div id="toolbar" class="clearfix">
                         <div class="clearfix">
                             <div id="search-block">
-                                <form id="search-form" action="/options.html" method="POST">
+                                <form id="search-form" action="/options.html" name="search_form" method="POST">
                                     <input type="text" id="search_text" />
                                     <input type="button" value="Search" id="search_btn" />
                                 </form>
@@ -48,7 +49,7 @@
                     </div>
                     <div>
                         <ul>
-                    
+                            <!-- Here is Video Data Lists -->
                         </ul>
                     </div>
                 </div>
@@ -79,6 +80,13 @@
                     <input type="checkbox" name="comment_lang_n" id="comment_lang_jp"><span id="comment_lang_jp_span">JP</span>
                     <input type="checkbox" name="comment_lang_n" id="comment_lang_en"><span id="comment_lang_en_span">EN</span>
                     <input type="checkbox" name="comment_lang_n" id="comment_lang_tw"><span id="comment_lang_tw_span">TW</span>
+                </div>
+                <div class="clearfix">
+                    <div id="download_quality_mode">下載檔案畫質</div>
+                    <select id="dl_quality_action">
+                        <option id="high_quality" value="1">只在高畫質時才啟動下載</option>
+                        <option id="low_quality" value="0">低畫質時仍強制下載</option>
+                    </select>
                 </div>
                 <button class="opt_btn">儲存 [Save]</button>
             </div>

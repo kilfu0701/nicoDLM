@@ -11,7 +11,7 @@ nicoDLM (Nico Download Manager)
 
 相關套件消息&更新，可以到 [nicoDLM@Blogger](http://kilfu0701.blogspot.tw/2012/12/nico-download-manager-nicodlm.html) 以及 [nicoDLM@github](https://github.com/kilfu0701/nicoDLM)
 
-**目前版本(Version): 0.1.5** @ 2013/1/8
+**目前版本(Version): 0.1.6-beta** @ 2013/2/4
 
 .  
 

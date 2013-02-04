@@ -31,6 +31,7 @@ var _locale = {
         'dl_status_0': 'Waiting',
         'dl_status_1': 'Done',
         'dl_status_2': 'canceled',
+        'dl_status_4': 'Wait HQ',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': 'Download Douga (nicoDLM)',
@@ -43,6 +44,9 @@ var _locale = {
         'if_file_exist': 'If File exists:',
         'overwrite': 'Overwrite',
         'save_new': 'Save into new file',
+        'download_quality_mode': 'Download Mode:',
+        'high_quality': 'Start downloading only when High Qaulity.',
+        'low_quality': 'Force downloading even in ECO mode.',
     },
     
     'en': {
@@ -71,6 +75,7 @@ var _locale = {
         'dl_status_0': 'Waiting',
         'dl_status_1': 'Done',
         'dl_status_2': 'canceled',
+        'dl_status_4': 'Wait HQ',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': 'Download Douga (nicoDLM)',
@@ -83,6 +88,9 @@ var _locale = {
         'if_file_exist': 'If File exists:',
         'overwrite': 'Overwrite',
         'save_new': 'Save into new file',
+        'download_quality_mode': 'Download Mode:',
+        'high_quality': 'Start downloading only when High Qaulity.',
+        'low_quality': 'Force downloading even in ECO mode.',
     },
     
     'zh-TW': {
@@ -111,6 +119,7 @@ var _locale = {
         'dl_status_0': '等待下載',
         'dl_status_1': '下載完成',
         'dl_status_2': '已取消',
+        'dl_status_4': '等待高畫質',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': '下載動畫 (nicoDLM)',
@@ -123,6 +132,9 @@ var _locale = {
         'if_file_exist': '影片檔存在時:',
         'overwrite': '覆寫該檔案',
         'save_new': '另存新檔',
+        'download_quality_mode': '下載模式:',
+        'high_quality': '只在高畫質時才啟動下載',
+        'low_quality': '低畫質時仍強制下載',
     },
     
     'ja-JP': {
@@ -151,6 +163,7 @@ var _locale = {
         'dl_status_0': 'DL待ち中',
         'dl_status_1': 'DL完了',
         'dl_status_2': 'キャンセル',
+        'dl_status_4': 'HQ待ち中',
         'dl_status_403': 'Forbidden',
         'dl_status_404': 'Not Found',
         'MenuListTitle': '動画をDL (nicoDLM)',
@@ -163,6 +176,9 @@ var _locale = {
         'if_file_exist': 'ファイルがいる時に:',
         'overwrite': '上書き',
         'save_new': '新しいに保存する',
+        'download_quality_mode': 'DLモード：',
+        'high_quality': 'エコモード解除時、DL開始する',
+        'low_quality': 'エコモードも強制DLします',
     }
 };
 

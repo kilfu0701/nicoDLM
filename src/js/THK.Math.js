@@ -1,6 +1,8 @@
 /**
  * Some Math function.
  * 數學相關函式 
+ * 
+ * @Dependency: THK.js (NOT required)
  *
  * author: kilfu0701, kilfu0701@gmail.com
 **/

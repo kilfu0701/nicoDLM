@@ -2,6 +2,8 @@
  * Access to chorme databases.
  * 使用chrome web sql
  * 
+ * @Dependency: THK.js
+ *
  * author: kilfu0701, kilfu0701@gmail.com
 **/
 var THK = THK || {};
@@ -71,18 +73,23 @@ THK.DB = (function() {
             _this = _this || this;
             
             /* open database */
-            _db = window.openDatabase("nicoDLM", "", "nicoDLM Data", 5*1024*1024); 
+            _db = _db || window.openDatabase("nicoDLM", "", "nicoDLM Data", 5*1024*1024); 
             
             /* create 'dlist', 'plugin_msg' table */
             /** dlist.status => 0: new add
                                 1: complete
                                 2: cancel
-                                3: error
+                                3: downloading
+                                4: waiting for high quality.
             **/
             _db.transaction(function(tx) {
                 var sql = "create table if not exists dlist (video_id text primary key, title text, comment text, thumb_img_url text, upload_at integer, length integer, hq_size integer, lq_size integer, total_view integer, total_comment integer, total_mylist integer, video_url text, video_ext text, dir text, userid text, download_at integer, complete_at integer, status integer, quality text)";
                 tx.executeSql(sql, [], function(tx, rs){});
                 sql = "create table if not exists plugin_msg (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, action text, progress double, vid text, msg text, ts integer)";
+                tx.executeSql(sql, [], function(tx, rs){});
+                sql = "create table if not exists dl_queue (video_id text primary key, mode text, status integer)";
+                tx.executeSql(sql, [], function(tx, rs){});
+                sql = "create table if not exists tag_list (video_id text primary key, tag text, status integer)";
                 tx.executeSql(sql, [], function(tx, rs){});
             }, function(err){ 
                 console.warn(err.message);
@@ -322,14 +329,23 @@ THK.DB = (function() {
             });
         },
         
+        /**
+         * Search in title and comment, get 'video_id' first. 
+         * Then merge by 'video_id'. 
+        **/
         searchByLike: function(str, callback) {
+            /* Search by 'Like' will be very slow, 
+            *  maybe here we can make a indexed file to access.
+            */
             _db.readTransaction(function(tx) {
                 tx.executeSql("SELECT * from dlist where title like '%"+str+"%'", [], function(tx, rs) {
-                    var rows = rs.rows, 
+                    var rows = rs.rows,
+                        len = rows.length,
                         output = new Array(),
-                        len = rows.length;
-                        
+                        sets = new Array();
+                    
                     for(var i=0; i<len; i++) {
+                        sets.push(rows.item(i).video_id);
                         output.push(rows.item(i));
                     }
                     
@@ -340,7 +356,20 @@ THK.DB = (function() {
                         for(var i=0; i<len; i++) {
                             output.push(rows.item(i));
                         }
-                        if(typeof callback=="function") callback(output);
+                        
+                        var listID = new Array(),
+                            result = new Array();
+                        // merge
+                        for(var i=0; i<output.length; i++) {
+                            if( THK.in_array(output[i].video_id, listID) ) {
+                                
+                            } else {
+                                listID.push(output[i].video_id);
+                                result.push(output[i]);
+                            }
+                        }
+                        
+                        if(typeof callback=="function") callback(result);
                     });
                 });
             }, function(err){
@@ -352,7 +381,8 @@ THK.DB = (function() {
         exportAll: function(callback) {
             _db.readTransaction(function(tx) {
                 tx.executeSql("SELECT * from dlist", [], function(tx, rs) {
-                    var ret = "/* nicoDLN VERSION: "+VERSION+" */\r\n";
+                    var ret = "/* nicoDLN VERSION: "+VERSION+" */\r\n"+
+                              "/* IF you want to merge all video's infomation, you can just comment out the next Two Line. */\r\n";
                     var rows = rs.rows, 
                         len = rows.length;
                     
@@ -362,7 +392,7 @@ THK.DB = (function() {
                     ret += "create table if not exists dlist (video_id text primary key, title text, comment text, thumb_img_url text, upload_at integer, length integer, hq_size integer, lq_size integer, total_view integer, total_comment integer, total_mylist integer, video_url text, video_ext text, dir text, userid text, download_at integer, complete_at integer, status integer, quality text)\r\n";
                     
                     for(var i=0; i<len; i++) {
-                        ret += "INSERT INTO dlist(%__KEY__%) values (%__VALUE__%)\r\n";
+                        ret += "INSERT INTO dlist(%__KEY__%) values (%__VALUE__%)";
                         var ct = 0;
                         for(var key in rows.item(i)) {
                             ct++;
@@ -398,6 +428,37 @@ THK.DB = (function() {
         query: function(sql, callback) {
             _db.transaction(function(tx) {
                 tx.executeSql(sql, [], function(tx, rs) {
+                    if(typeof callback=="function") callback(rs);
+                });
+            }, function(err){
+               console.warn(err.message);
+            });
+        },
+        
+        addIntoDLQueue: function(vid, callback) {
+            _db.transaction(function(tx) {
+                tx.executeSql("INSERT INTO dl_queue (video_id, mode, status) VALUES (?,?,?)", [vid, "high", 0], function(tx, rs) {
+                    if(typeof callback=="function") callback(rs);
+                });
+            }, function(err){
+               //console.warn(err.message);
+            });
+        },
+        
+        deleteFromDLQueue: function(vid, callback) {
+            _db.transaction(function(tx) {
+                tx.executeSql("DELETE FROM dl_queue WHERE video_id = ?", [vid], function(tx, rs) {
+                    if(typeof callback=="function") callback(rs);
+                });
+            }, function(err){
+               console.warn(err.message);
+            });
+        },
+        
+        /* limit 3 each time */
+        getAllDLQueue: function(callback) {
+            _db.transaction(function(tx) {
+                tx.executeSql("SELECT * FROM dl_queue limit 3", [], function(tx, rs) {
                     if(typeof callback=="function") callback(rs);
                 });
             }, function(err){

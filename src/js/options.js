@@ -17,12 +17,17 @@ var TotalVideo = 0;
 var j_video_cur;
 var j_video_all; 
 var j_edit_window;
+var j_search_result;
 
 var g_videoEditID = 0;
 
 
-
 window.onload = function() {
+    j_video_cur = j_video_cur || $("#video_cur");
+    j_video_all = j_video_all || $("#video_all");
+    j_edit_window = j_edit_window || $("#edit_window");
+    j_search_result = j_search_result || $("#search_result");
+
     loadPlugin();         // 1
     restoreOption();      // 2
     setLocaleWording();   // 3
@@ -30,11 +35,6 @@ window.onload = function() {
     addEventHandle();     // 5
     
     window.onscroll = dynamicLoad; // 6
-    
-    j_video_cur = j_video_cur || $("#video_cur");
-    j_video_all = j_video_all || $("#video_all");
-    j_edit_window = j_edit_window || $("#edit_window");
-    
     
     // get total video count first.
     THK.DB.getCount('dlist', function(res){
@@ -50,6 +50,21 @@ window.onload = function() {
     
     // starting reading msg...
     readPluginMsg();           // 8
+    
+    
+    //THK.Validate.init();
+    //var error = THK.Validate.set({
+    //    none : {
+    //        file_format : {
+    //            notEmpty : ["no empty plz !"],
+    //            alphaNumeric : ["only number and character."],
+    //        }
+    //    }
+    //});
+    //console.log(error);
+    
+    //var aa = THK.Validate.notEmpty([undefined]);
+    //console.log(aa);
 };
 
 /**
@@ -102,14 +117,14 @@ function restoreOption() {
     $("#comment_file_format_input").val(localStorage["comment_file_format"]);
     
     var elem = THK.get('input[name=comment_lang_n]');
-    for(var i=0; i<3; i++) {
+    for(var i=0; i < THK.Nico.CommentLang.length; i++) {
         if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
             elem[i].checked=true;
         }
     }
     
     $("select#save_action").val(localStorage["saveFileAction"]);
-    
+    $("select#dl_quality_action").val(localStorage["download_mode"]);
 }
 
 /**
@@ -124,28 +139,36 @@ function setLocaleWording() {
         // use by system default.
     
     } else if( pn in _locale) {
-        // use by User's select
-        $("#dlist a").html( _locale[pn]['dlist']);
-        $("#general a").html( _locale[pn]['general']);
-        $("#langs a").html( _locale[pn]['langs']);
-        $("#lang_desc").html( _locale[pn]['lang_desc']);
-        $("#save").html( _locale[pn]['save']);
-        $("#default").html( _locale[pn]['default']);
-        $("#en").html( _locale[pn]['en']);
-        $("#zh-TW").html( _locale[pn]['zh-TW']);
-        $("#ja-JP").html( _locale[pn]['ja-JP']);
-        $("#download_dir").html( _locale[pn]['download_dir']);
-        $("#file_format").html( _locale[pn]['file_format']);
-        $("#comment_file_format").html( _locale[pn]['comment_file_format']);
-        $("#download_dir_btn").val( _locale[pn]['download_dir_btn']);
-        $("#clear_all").html( _locale[pn]['delete_all_btn'] );
-        $("#comment_lang_en_span").html( _locale[pn]['en'] );
-        $("#comment_lang_jp_span").html( _locale[pn]['ja-JP'] );
-        $("#comment_lang_tw_span").html( _locale[pn]['zh-TW'] );
-        $("#comment_lang").html( _locale[pn]['comment_lang'] );
-        $("#if_file_exist").html( _locale[pn]['if_file_exist'] );
-        $("#overwrite").html( _locale[pn]['overwrite'] );
-        $("#saveNew").html( _locale[pn]['save_new'] );
+        loc_list = {
+            "#dlist a"              : "dlist",
+            "#general a"            : "general",
+            "#langs a"              : "langs",
+            "#lang_desc"            : "lang_desc",
+            "#save"                 : "save",
+            "#default"              : "default",
+            "#en"                   : "en",
+            "#zh-TW"                : "zh-TW",
+            "#ja-JP"                : "ja-JP",
+            "#download_dir"         : "download_dir",
+            "#file_format"          : "file_format",
+            "#comment_file_format"  : "comment_file_format",
+            "#download_dir_btn"     : "download_dir_btn",
+            "#clear_all"            : "delete_all_btn",
+            "#comment_lang_en_span" : "en",
+            "#comment_lang_jp_span" : "ja-JP",
+            "#comment_lang_tw_span" : "zh-TW",
+            "#comment_lang"         : "comment_lang",
+            "#if_file_exist"        : "if_file_exist",
+            "#overwrite"            : "overwrite",
+            "#saveNew"              : "save_new",
+            "#download_quality_mode": "download_quality_mode",
+            "#high_quality"         : "high_quality",
+            "#low_quality"          : "low_quality",
+        };
+        
+        for(var k in loc_list) {
+            $(k).html( _locale[pn][loc_list[k]]);
+        }
     }
 }
 
@@ -205,7 +228,7 @@ function addEventHandle() {
     });
     
     /* search result block close event */
-    //$("#close_search_btn").click(function(e){  $("#search_result").fadeOut(300);  });
+    $("#close_search_btn").click(function(e){  $("#search_result").fadeOut(300);  });
     
     /* 選擇資料夾(browse folder selector) */
     $("#download_dir_btn").click(function(e){
@@ -215,17 +238,15 @@ function addEventHandle() {
         }
     });    
     
-    /* edit_window draggable */
-    j_edit_window = j_edit_window || $("#edit_window");
+    /* draggable blocks */
     j_edit_window.draggable();
+    j_search_result.draggable();
 }
 
 /**
  * Step 6: 當畫面拉到底，自動讀取更多清單項目。
 **/
 function dynamicLoad() {
-    
-
     var _body = THK.get('body')[0];
     var contentHeight = _body.offsetHeight;
 	var yOffset = window.pageYOffset; 
@@ -288,8 +309,9 @@ function addDownloadListElemets(data, prepend) {
             '<div id="progress_'+data.video_id+'" class="dl-status-'+data.status+'">'+dl_status+'</div>'+ // dl status
             '<div id="adv_'+data.video_id+'"></div>'+
             '<div class="editMenu">'+
-              '<img src="/images/delete_icon2.png" class="delete" id="del_'+data.video_id+'">'+
-              '<img src="/images/edit.png" class="edit" id="edit_'+data.video_id+'">'+
+              '<img title="delete" src="/images/delete_icon2.png" class="delete" id="del_'+data.video_id+'">'+
+              '<img title="modify" src="/images/edit.png" class="edit" id="edit_'+data.video_id+'">'+
+              '<img title="re-download" src="/images/refresh.png" class="redownload" id="redownload_'+data.video_id+'">'+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -305,6 +327,9 @@ function addDownloadListElemets(data, prepend) {
     });
     _tmp.find('img.edit').bind("click",function(){
         editItemById( this.id.split("_")[1] );
+    });
+    _tmp.find('img.redownload').bind("click",function(){
+        re_download( this.id.split("_")[1] );
     });
     
     // editMenu mouse
@@ -396,6 +421,9 @@ function readPluginMsg() {
                             });
                         });
                     });
+                } else if(v.action=="HQWaiting") {
+                    ock.attr({"class": "dl-status-4"});
+                    ock.html(_locale[pn]["dl_status_4"]);
                 }
             } catch(e) {
             }
@@ -450,16 +478,17 @@ function saveOption() {
     
     var _lang = 0;
     if( $("#comment_lang_jp")[0].checked==true ) 
-        _lang += 1;
+        _lang += THK.Nico.CommentLang[0][1];
     
     if( $("#comment_lang_en")[0].checked==true ) 
-        _lang += 2;
+        _lang += THK.Nico.CommentLang[1][1];
        
     if( $("#comment_lang_tw")[0].checked==true ) 
-        _lang += 4;
+        _lang += THK.Nico.CommentLang[2][1];
     
     localStorage["comments_for_download"] = _lang || 1;
-    localStorage["saveFileAction"] = $("select#save_action option:selected")[0].value;
+    localStorage["saveFileAction"] = $("select#save_action option:selected")[0].value || 0;
+    localStorage["download_mode"] = $("select#dl_quality_action option:selected")[0].value || 1;
     
     THK.get("#save").style.display = 'block';
     window.setTimeout( doRefresh, 1000);
@@ -594,13 +623,15 @@ function updateCounter() {
 
 function searchVideo() {
     var input_text = $("#search_text").val() || '';
+    console.log(input_text);
     var search_result_content = $("#search_result_content");
     var search_result = $("#search_result");
     
     if(input_text=='') 
         return;
-        
+
     THK.DB.searchByLike(input_text, function(res){
+        console.log(res);
         if(res.length==0) {
             search_result_content.html("No data match the search string!");
             search_result.fadeIn(300);
@@ -638,22 +669,38 @@ function importList() {
     
     file_reader.onload = function() {
         var lines = file_reader.result.split("\r\n");
+        var isCMT = false;
         for(var i=0; i<lines.length; i++) {
             if(lines[i] == "") 
                 continue;
             
             var len = lines[i].length;
             
-            if(len>4) {
+            // Comment Rules. 
+            //     (1) IF first character is '#', then this line will be a comment.
+            //     (2) Block comment. Between with /* ... */
+            //
+            //   ** Changes in version 0.1.6, old version only one-line block commnet. **
+            //
+            if(len>0 && lines[i].substr(0,1)=="#") {
+                continue;
+            } else if(len>1) {
                 var pre = lines[i].substr(0,2);
                 var lat = lines[i].substr(-2);
-                if(pre=="/*" && lat=="*/")
+                if(pre=="/*") {
+                    isCMT = true;
+                }
+                if(lat=="*/" && isCMT) {
+                    isCMT = false;
                     continue;
+                }
+                if(isCMT) {
+                    continue;
+                }
             }
             
             THK.DB.query(lines[i]);
         }
-        
     }
     
     // start reading.... 
@@ -665,11 +712,16 @@ function importList() {
  * from plugin call back
 **/
 function plugin_callback() {
+    var _action;
     if(arguments.length > 0) {
-        var _action = arguments[0];
+        _action = arguments[0];
     }
     
     if(_action=="FileNotExist") {
         alert( _locale[pn]['fileNotExist'] );
     }
+}
+
+function re_download(vid) {
+    chrome.extension.getBackgroundPage().prepareDownload({url: NICO_URL+vid, fromQueue:true});
 }

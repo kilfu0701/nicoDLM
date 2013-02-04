@@ -1,35 +1,30 @@
 /**
- * 
- * Step: 1. Load extendsion's contents scripts. (THK.js & exec.js)
- *       2. Initalize THK and add a download link into current nico page.
+ * THK Class and some basic functions, constants. (Load this script at top) 
+ * ( THK class, 基本函式, 常數 )
  *
- *
- * Flow: THK.addLink() -> THK.getVideoID() -> THK.getVideoInfo() -> THK._addLink()
+ * @Dependency: 
  * 
- *       when DL-link click:  THK.getMoviePath() -> sendRequest to Background, and open a tab for downloading.
+ * author: kilfu0701, kilfu0701@gmail.com
 **/
-var FLAPI_URL = "http://flapi.nicovideo.jp/api/getflv"; // get movie api URL
-var FLAPI_URL2 = "http://flapi.nicovideo.jp/api/getflv?v=%s&ts=%d&as3=1"; 
-var THUMB_URL = "http://ext.nicovideo.jp/api/getthumbinfo/";
-//var riAPI_URL = "http://riapi.nicovideo.jp/api/watch/getvideoreview?video_id=nm16791686&offset=0"
 
-/*
-style 1:
-  mode:list
-  contentsId:nm16791686
-  offset:0
-  length:4
-  reloadFlag:false
-  user_session:user_session_595548_154404738271678611
-  
-style 2:
-  mode:side
-  watchId:nm16791686
-  reloadFlag:false
-  user_session:user_session_595548_154404738271678611
-*/
-//var niCMD_URL = "http://nicmd.nicovideo.jp/Api/index"; // POST !
+/* For debug. */
+var G_DEBUG = false;
 
+/* Global Vars */
+var G_DL_DIR = "C:/",
+    G_DEFAULT_LANG = "default",
+    G_FILE_FORMAT = "[%ID%] %TITLE%",
+    G_COMMENT_FILE_FORMAT = "[%ID%] %TITLE% [%COMMENT%]",
+    VERSION = '0.1.6-beta',
+    RELEASE = '2013/2/4';
+    
+var NICO_URL = "www.nicovideo.jp/watch/";
+var NICO_REG_URL = new RegExp( NICO_URL );
+
+
+/**
+ * Bulid THK class object.
+**/
 (function(window, undefined) {
     var document = window.document,
         navigator = window.navigator,
@@ -100,220 +95,10 @@ style 2:
      */
     if(typeof THK=='undefined'){
         var THK = Class.extend({});
-        THK.video_id = '';          // Video ID.         Ex: sm123456
-        THK.time = 0;               // Current Timestamp when access API
-        THK.movie_info = {};        // movie's all infomations
-        THK.flapi_params = {};      // parameters return from http://flapi.nicovideo.jp/api/getflv
-        THK.thumb = {};
-        THK.thumb_xml = '';
-        THK.video_url = '';         // movie real path
-        THK.api_url = '';           // after put parameter into flapi
-        THK.lang = 'default';
         THK.debug = true;
         
         THK.init = function() {
             _D("Init THK...");
-        }
-                
-        /** 
-         * 加入下載連結, 並處理"下載動畫"的onclick
-         */
-        THK._addLink = function() {
-            /* 從background 取得語言設定 */
-            chrome.extension.sendRequest({greeting: "getLang", data:"" }, function(response) {
-                THK.lang = response.Lang;
-
-                var video_title = THK.movie_info.thumbTitle;
-                var keyBtn = $("#player_bottom_textlink")[0];
-
-                /* 
-                * If user is in NICONICO.Q vesion, "#player_bottom_textlink" dose not exist. 
-                * so... skip append download link.
-                */
-                if(keyBtn==undefined) {
-                    /* here using another way, appending a node into right-click MenuList */
-                    
-                    
-                } else {
-                    /* 加入<nobr> */
-                    var nobr = document.createElement("nobr"); 
-                    var aTag = document.createElement("a");
-                    aTag.id = "chr_nicoDLM_link";
-                    aTag.style.margin = "3px";
-                    aTag.style.padding = "2px";
-                    aTag.style.border = "2px solid #90FF00";
-                    aTag.href = "javascript:;";
-                    aTag.innerHTML = _locale[THK.lang]['dl_douga'];
-                    nobr.appendChild(aTag);
-         
-                    keyBtn.appendChild( nobr );
-                          
-                    // add link click event.(加入onclick處理)
-                    var link = $('#chr_nicoDLM_link')[0];
-                    link.setAttribute('vid', THK.video_id);
-                    link.onclick = function() {
-                        if(THK.video_url=='') {
-                            alert(_locale[THK.lang]['error_get_url']);
-                        } else {
-                            THK.movie_info["mvUrl"] = THK.video_url;
-                            chrome.extension.sendRequest({greeting: "movieURL",
-                                                          movieInfo: THK.movie_info,
-                                                          movieThumb: THK.thumb,
-                                                          flapiInfo: THK.flapi_params }, function(response) {
-                                //_D(response);
-                            });
-                        }
-                    };
-                }
-            });
-        }
-
-        /**
-         * 取得所有Flash variables.(重新request, 比較慢)
-         */
-        THK.getVideoInfo = function(tablink) {
-            THK.movie_info = {};
-            var xhr = new XMLHttpRequest();
-            /* 取得網頁原始碼 */
-            xhr.open("GET", tablink, false);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    var src = xhr.responseText;
-                    try{
-                        /* 取得所有Flash variables */
-                        var varis = new RegExp( "addVariable.+;", "g");
-                        var data = src.match(varis);
-                        for(var key in data){
-                            var _data = data[key].split("\"");
-                            THK.movie_info[ ""+decodeURIComponent( _data[1] ) ] = decodeURIComponent( _data[3] ) ;
-                        }
-                    }
-                    catch(e){
-                        _D("Error :" + e);
-                    }
-                }
-            }        
-            xhr.send();
-            /* end of 取得網頁原始碼 */
-        }
-        
-        /**
-         * 取得所有Flash variables.(直接從document取出, 比較快)
-         *   (Warning: Niconico Q dont have these attr.)
-         */
-        THK.getVideoInfo2 = function() {
-            THK.movie_info = {};
-            var src = document.getElementsByTagName('html')[0].innerHTML;
-            try{
-                /* 取得所有Flash variables */
-                var varis = new RegExp( "addVariable.+;", "g");
-                var data = src.match(varis);
-                for(var key in data){
-                    var _data = data[key].split("\"");
-                    THK.movie_info[ ""+decodeURIComponent( _data[1] ) ] = decodeURIComponent( _data[3] ) ;
-                }
-            }
-            catch(e){
-                _D("Error :" + e);
-            }
-        }
-        
-        /**
-         * 取得影片的網址
-         */
-        THK.getMoviePath = function(vid) {
-            THK.time = new Date().getTime() / 1000;
-            THK.api_url = sprintf(FLAPI_URL2, vid, THK.time);
-            
-            var xhr2 = new XMLHttpRequest();
-            /* 取得影片實際URL API */
-            xhr2.onreadystatechange = function() {
-                if (xhr2.readyState == 4) {
-                    var src2 = xhr2.responseText,
-                        _arr = src2.split("&");
-                    for(var key in _arr){
-                        var _data = _arr[key].split("=");
-                        THK.flapi_params[ ""+decodeURIComponent(_data[0]) ] = decodeURIComponent(_data[1]);
-                    }
-                    
-                    THK.video_url = THK.flapi_params["url"];
-                }
-            }
-            xhr2.open("GET", THK.api_url, false);
-            xhr2.send();
-        }
-        
-        /**
-         * 給一個nico的網址，取得video ID.
-         */
-        THK.getVideoID = function(url) {
-            return url.match(/[a-z]{2}[0-9]+|\/[0-9]+/i)[0];
-        }
-        
-        THK.getThumb = function(vid) {
-            var _url = THUMB_URL + vid;
-            var xhr = new XMLHttpRequest();
-            // 取得影片Thumbs
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4) {
-                    THK.thumb_xml = xhr.responseText;
-                    // parsing xml
-                    if($!=undefined) {
-                        try {
-                            var xml_obj = $(THK.thumb_xml);
-                            THK.thumb["video_id"] = xml_obj.find("video_id").text();
-                            THK.thumb["title"] = xml_obj.find("title").text();
-                            THK.thumb["description"] = xml_obj.find("description").text();
-                            THK.thumb["thumbnail_url"] = xml_obj.find("thumbnail_url").text();
-                            THK.thumb["first_retrieve"] = xml_obj.find("first_retrieve").text();
-                            THK.thumb["length"] = xml_obj.find("length").text();
-                            THK.thumb["movie_type"] = xml_obj.find("movie_type").text();
-                            THK.thumb["size_high"] = xml_obj.find("size_high").text();
-                            THK.thumb["size_low"] = xml_obj.find("size_low").text();
-                            THK.thumb["view_counter"] = xml_obj.find("view_counter").text();
-                            THK.thumb["comment_num"] = xml_obj.find("comment_num").text();
-                            THK.thumb["mylist_counter"] = xml_obj.find("mylist_counter").text();
-                            THK.thumb["last_res_body"] = xml_obj.find("last_res_body").text();
-                            THK.thumb["watch_url"] = xml_obj.find("watch_url").text();
-                            THK.thumb["thumb_type"] = xml_obj.find("thumb_type").text();
-                            THK.thumb["embeddable"] = xml_obj.find("embeddable").text();
-                            THK.thumb["no_live_play"] = xml_obj.find("no_live_play").text();
-                            THK.thumb["user_id"] = xml_obj.find("user_id").text();
-                            
-                            THK.thumb["tags"] = []
-                            xml_obj.find("tag").each(function(i, v){
-                                THK.thumb["tags"].push( $(v).text() );
-                            });
-                            
-                        } catch(e) {
-                            _D(e);
-                        }
-                    } else {
-                        _D("jquery not found");
-                    }
-                }
-            }
-            xhr.open("GET", _url, false);
-            xhr.send();
-        }
-        
-        THK.prepare = function(tablink) {
-            THK.video_id = THK.getVideoID(tablink); /* parse video_id from a URL */
-            THK.getVideoInfo2(tablink);             /* 分析影片的info */
-            THK.getThumb(THK.video_id);             /* get thumb infomations */
-            THK.getMoviePath(THK.video_id);         // 取得video url
-        }
-        
-        /**
-         * 加入"下載動畫"的連結到html裡
-         */
-        THK.addLink = function(tablink) {
-            THK.prepare(tablink);
-            THK._addLink(); /* 加入下載連結 */
-        }
-
-        THK.onMenuListClick = function(tablink) {
-            THK.prepare(tablink);
         }
         
         /**
@@ -399,6 +184,8 @@ style 2:
             }
         }
         
+        THK.in_array = in_array;
+        
     } // end of THK
 
     /* Check if set Attr ? */
@@ -432,3 +219,173 @@ style 2:
     }
     
 })( window );
+
+
+
+
+
+/* check if this url is niconico */
+function isNicoURL( uri ) {
+    return ( uri.match(NICO_REG_URL) != undefined );
+}
+
+/* Load javascript file into html */
+function LoadScript(scriptName) {
+    var elm = document.createElement('script');
+    elm.type = "text/javascript";
+    elm.src = scriptName;
+    document.body.appendChild(elm);
+}
+
+function str_repeat(i, m) {
+    for (var o = []; m > 0; o[--m] = i);
+    return o.join('');
+}
+
+function sprintf() {
+    var i = 0, a, f = arguments[i++], o = [], m, p, c, x, s = '';
+    while (f) {
+        if (m = /^[^\x25]+/.exec(f)) {
+            o.push(m[0]);
+        }
+        else if (m = /^\x25{2}/.exec(f)) {
+            o.push('%');
+        }
+        else if (m = /^\x25(?:(\d+)\$)?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(f)) {
+            if (((a = arguments[m[1] || i++]) == null) || (a == undefined)) {
+                throw('Too few arguments.');
+            }
+            if (/[^s]/.test(m[7]) && (typeof(a) != 'number')) {
+                throw('Expecting number but found ' + typeof(a));
+            }
+            switch (m[7]) {
+                case 'b': a = a.toString(2); break;
+                case 'c': a = String.fromCharCode(a); break;
+                case 'd': a = parseInt(a); break;
+                case 'e': a = m[6] ? a.toExponential(m[6]) : a.toExponential(); break;
+                case 'f': a = m[6] ? parseFloat(a).toFixed(m[6]) : parseFloat(a); break;
+                case 'o': a = a.toString(8); break;
+                case 's': a = ((a = String(a)) && m[6] ? a.substring(0, m[6]) : a); break;
+                case 'u': a = Math.abs(a); break;
+                case 'x': a = a.toString(16); break;
+                case 'X': a = a.toString(16).toUpperCase(); break;
+            }
+            a = (/[def]/.test(m[7]) && m[2] && a >= 0 ? '+'+ a : a);
+            c = m[3] ? m[3] == '0' ? '0' : m[3].charAt(1) : ' ';
+            x = m[5] - String(a).length - s.length;
+            p = m[5] ? str_repeat(c, x) : '';
+            o.push(s + (m[4] ? a + p : p + a));
+        } else {
+            throw('Huh ?!');
+        }
+        f = f.substring(m[0].length);
+    }
+    return o.join('');
+}    
+
+function getTimestamp() {
+    return Math.round(new Date().getTime() / 1000);
+}
+
+function getDate(ts) {
+    var timestamp = ts || getTimestamp() || 1301090400,
+        date = new Date(timestamp * 1000),
+        datevalues = [
+             date.getFullYear()
+            ,date.getMonth()+1
+            ,date.getDate()
+            ,date.getHours()
+            ,date.getMinutes()
+            ,date.getSeconds()
+         ];
+    
+    return datevalues;
+}
+
+function trace(msg) {
+    if (THK.debug) {
+        if (window.console) {
+            console.log(msg);
+        } else if ( typeof( jsTrace ) != 'undefined' ) {
+            jsTrace.send( msg );
+        } else {}
+    }
+}
+
+function addCommas(nStr) {
+	nStr += '';
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+	var rgx = /(\d+)(\d{3})/;
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+	return x1 + x2;
+}
+
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint16Array(buf));
+}
+
+function str2ab(str) {
+    var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+    var bufView = new Uint16Array(buf);
+    for (var i=0, strLen=str.length; i<strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+
+/**
+ * for Debug
+**/
+function _D(object){
+    try { 
+        if(G_DEBUG==false)
+            return ;
+        
+        throw Error('') 
+    } catch(err) {
+        var caller_line = err.stack.split("\n")[3];
+        var index = caller_line.indexOf("at ");
+        var clean = caller_line.slice(index+2, caller_line.length);
+        console.log("%o  "+clean, object);
+    }
+}
+
+function in_array (needle, haystack, argStrict) {
+  // http://kevin.vanzonneveld.net
+  // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // +   improved by: vlado houba
+  // +   input by: Billy
+  // +   bugfixed by: Brett Zamir (http://brett-zamir.me)
+  // *     example 1: in_array('van', ['Kevin', 'van', 'Zonneveld']);
+  // *     returns 1: true
+  // *     example 2: in_array('vlado', {0: 'Kevin', vlado: 'van', 1: 'Zonneveld'});
+  // *     returns 2: false
+  // *     example 3: in_array(1, ['1', '2', '3']);
+  // *     returns 3: true
+  // *     example 3: in_array(1, ['1', '2', '3'], false);
+  // *     returns 3: true
+  // *     example 4: in_array(1, ['1', '2', '3'], true);
+  // *     returns 4: false
+  var key = '',
+    strict = !! argStrict;
+
+  if (strict) {
+    for (key in haystack) {
+      if (haystack[key] === needle) {
+        return true;
+      }
+    }
+  } else {
+    for (key in haystack) {
+      if (haystack[key] == needle) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
