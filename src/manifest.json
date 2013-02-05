@@ -21,6 +21,7 @@
     "contextMenus",
 	"http://www.nicovideo.jp/*",
 	"http://flapi.nicovideo.jp/*",
+    //"file:///*",
     "http://*/*"
   ],
   "browser_action": {
@@ -30,6 +31,7 @@
   "content_scripts": [{
     "js": [ "js/lib/jquery-1.7.2.min.js", "js/i18n.js", "js/THK.js", "js/THK.Nico.js", "js/THK.DB.js", "js/exec.js" ],
     "matches": [ "http://www.nicovideo.jp/watch/*" ],
+    //"matches": ["<all_urls>"],
     "run_at": "document_end"
   }],
   "plugins": [
