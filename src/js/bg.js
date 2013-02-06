@@ -242,7 +242,7 @@ chrome.extension.onRequest.addListener(
 
 function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
     THK.DB.findByVideoID(movieThumb.video_id, function(abr){
-        if(abr==undefined || (abr.status!=4 && abr.status!=0 || fromQueue) ) {
+        if(abr==undefined || (abr.status!=4 && abr.status!=0) ) {
             /* check video quality is high or low */
             if(movieURL.substr(-3)=="low") {
                 movieThumb.quality = "low";
@@ -301,10 +301,8 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                 }
             }
         } else {
-            if(fromQueue==undefined) {
-                var lang = getLang();
-                alert(_locale[lang]['already_added']);
-            }
+            var lang = getLang();
+            alert(_locale[lang]['already_added']);
         }
     });
 }
