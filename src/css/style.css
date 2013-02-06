@@ -40,13 +40,15 @@ button {
 */
 body {
   text-align: center;
-  overflow-x:hidden;overflow-y:auto;
+  /*overflow-x:hidden;*/
+  overflow-y:auto;
   font-size: 14px;
   color: #333;
   margin-left: auto;
   margin-right: auto;
   font-family:'ヒラギノ角ゴ Pro W3','Hiragino Kaku Gothic Pro','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
   padding: 10px;
+  min-width:1020px;
 }
 #container { 
   position:relative;
