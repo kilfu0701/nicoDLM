@@ -533,6 +533,8 @@ function deleteItemById(smid) {
             
             }
         });
+        
+        THK.DB.deleteQueueById(smid);
     } else {
         // do nothing
         

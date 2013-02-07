@@ -157,7 +157,21 @@ THK.DB = (function() {
                 console.warn(err.message);
             });
         },
-         
+        
+        deleteQueueById : function(video_id, callback) {
+            _db.transaction(function(tx) {
+                var sql = "DELETE FROM dl_queue where video_id=?";
+                var ret = [];
+                tx.executeSql(sql, [video_id], function(tx, rs){
+                    ret = rs;
+                    if(typeof callback=="function") callback(ret);
+
+                });
+            }, function(err){
+                console.warn(err.message);
+            });
+        },
+        
         /**
          * find data exists? By video_id. 
          *

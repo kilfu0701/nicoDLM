@@ -242,7 +242,8 @@ chrome.extension.onRequest.addListener(
 
 function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
     THK.DB.findByVideoID(movieThumb.video_id, function(abr){
-        if(abr==undefined || (abr.status!=4 && abr.status!=0) ) {
+        console.log(abr);
+        if(abr==undefined || (abr.status==4 || abr.status!=0) ) {
             /* check video quality is high or low */
             if(movieURL.substr(-3)=="low") {
                 movieThumb.quality = "low";
@@ -261,6 +262,7 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                 THK.DB.addIntoDLQueue(movieThumb.video_id);
                 /* send a msg */
                 plugin_callback('HQWaiting', movieThumb.video_id, 'Wait HQ');
+                plugin_callback('addNewDL', movieThumb.video_id);
             } else {
                 if(fromQueue!=undefined) {
                     THK.DB.deleteFromDLQueue(movieThumb.video_id);
