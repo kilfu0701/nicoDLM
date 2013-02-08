@@ -270,7 +270,7 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                 if(fromQueue!=undefined) {
                     THK.DB.deleteFromDLQueue(movieThumb.video_id);
                 }
-                
+
                 /* load page once at first.(not work?) */
                 //fs2.getValueForURL(movieThumb['watch_url']);
                 
@@ -293,7 +293,7 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                 */
                 for(var i=0; i<3; i++) {
                     if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
-                        var _cmtName = generateDownloadFileFormat(movieThumb, i)
+                        var _cmtName = generateDownloadFileFormat(movieThumb, i);
                         fs2.dlComment(flapiInfo.ms, _cmtName, ".xml", dir_path, flapiInfo.thread_id, ""+i); // here must put as String.
                     }
                 }
@@ -329,7 +329,7 @@ function generateDownloadFileFormat(vinfo, type) {
     }
     
     var ret = _format.replace("%ID%", vinfo.video_id);
-    ret = ret.replace("%TITLE%", vinfo.title);
+    ret = ret.replace("%TITLE%", vinfo.title ); // bug?
     
     if(type==undefined) {
         ret = ret.replace("%COMMENT%", "");
@@ -338,6 +338,12 @@ function generateDownloadFileFormat(vinfo, type) {
     } else {
     
     }
+
+    
+    //ret = ret.replace(/&amp;/g, '');
+    var div = document.createElement('div');
+    div.innerHTML = ret;
+    ret = div.firstChild.nodeValue;
 
     return ret;
 }
