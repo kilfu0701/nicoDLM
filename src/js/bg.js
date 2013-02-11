@@ -363,7 +363,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
  * Insert a menu into right-click MenuList.
 **/
 chrome.tabs.onUpdated.addListener( setMenuList );
-chrome.tabs.onSelectionChanged.addListener( setMenuList );
+//chrome.tabs.onSelectionChanged.addListener( setMenuList );
 
 function prepareDownload( aTab ) {
     /* start download video & comments */
