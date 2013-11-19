@@ -39,10 +39,12 @@ THK.Nico = (function(){
     
     var time = 0;               // Current Timestamp when access API
     var movie_info = {};        // movie's all infomations
+    var douga_type = '';
     var thumb_xml = '';
     var api_url = '';           // after put parameter into flapi
     var lang = 'default';
     var debug = true;
+    var cached_html = '';
     
     return {
         /**
@@ -150,6 +152,8 @@ THK.Nico = (function(){
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
                     var src = xhr.responseText;
+                    cached_html = src;
+                    
                     try{
                         /* 取得所有Flash variables */
                         var varis = new RegExp( "addVariable.+;", "g");
@@ -189,6 +193,32 @@ THK.Nico = (function(){
             }
         },
         
+        getVideoInfo_GINZA : function(tablink) {
+            movie_info = {};
+            /* 取得網頁原始碼 */
+            $.ajax({
+                url: tablink,
+                data: {},
+                type: 'get',
+                dataType: 'html',
+                async: false,
+                success: function(r) {
+                    $.each($(r), function(k, v) {
+                        var $v = $(v);
+                        if($v.attr('id') == 'watchAPIDataContainer') {
+                            var json_str = $v.text();
+                            if(json_str != "") {
+                                movie_info = JSON.parse(json_str);
+                            }
+                        }
+                    });
+                },
+                error: function(r) {
+                    //console.log(r);
+                }
+            });
+        },
+        
         /**
          * 取得影片的網址
         **/
@@ -218,7 +248,19 @@ THK.Nico = (function(){
          * 給一個nico的網址，取得video ID.
         **/
         getVideoID : function(url) {
-            return url.match(/[a-z]{2}[0-9]+|\/[0-9]+/i)[0];
+            var $id = '';
+            var hasEnglishPrefix = url.match(/[a-z]{2}[0-9]+/i);
+            var noEnglishPrefix = url.match(/[0-9]+/i);
+            
+            if(hasEnglishPrefix) {
+                $id = hasEnglishPrefix;
+                _this.douga_type = 'normal';
+            } else if(noEnglishPrefix) {
+                $id = noEnglishPrefix;
+                _this.douga_type = 'community';
+            }
+            
+            return $id;
         },
         
         getThumb : function(vid) {
@@ -255,7 +297,6 @@ THK.Nico = (function(){
                             xml_obj.find("tag").each(function(i, v){
                                 _this.thumb["tags"].push( $(v).text() );
                             });
-                            
                         } catch(e) {
                             _D(e);
                         }
@@ -264,14 +305,87 @@ THK.Nico = (function(){
                     }
                 }
             }
+            
             xhr.open("GET", _url, false);
             xhr.send();
         },
         
+        evalExecute : function(url) {
+            if(cached_html == "") {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    async: false,
+                    success: function(data) {
+                        cached_html = data;
+                        _this._eval();
+                    }
+                });
+            } else {
+                _this._eval();
+            }
+        },
+        
+        _eval : function() {
+            var dom = $(cached_html);
+
+            dom.filter('script').each(function() {
+                var txt = this.text || this.textContent || this.innerHTML || '';
+                if(txt.substring(0, 18).match(/var Video/i)) {
+                    $.globalEval(txt);
+                }
+            });
+        },
+        
         prepare : function(tablink) {
             _this.video_id = _this.getVideoID(tablink); /* parse video_id from a URL */
-            _this.getVideoInfo2(tablink);             /* 分析影片的info */
-            _this.getThumb(_this.video_id);             /* get thumb infomations */
+            _this.getVideoInfo_GINZA(tablink);
+            
+            if(Object.keys(movie_info).length === 0) {
+                _this.getVideoInfo(tablink);             /* 分析影片的info */
+            }
+
+            if(_this.douga_type == "normal") {
+                _this.getThumb(_this.video_id);             /* get thumb infomations */
+            } else if(_this.douga_type == "community") {
+                // parse parameters from 'movie_info'
+                _this.evalExecute(tablink);
+                
+                if(typeof Video == "object") {
+                    // for 原宿
+                    _this.thumb['video_id'] = Video.v;
+                    _this.thumb['title'] = Video.title || '';
+                    _this.thumb['description'] = Video.description || '';
+                    _this.thumb['thumbnail_url'] = Video.thumbnail || '';
+                    _this.thumb['first_retrieve'] = Video.postedAt || '';
+                    _this.thumb['length'] = Video.length || 0;
+                    _this.thumb['size_high'] = 0;
+                    _this.thumb['size_low'] = 0;
+                    _this.thumb['view_counter'] = Video.viewCount || 0;
+                    _this.thumb['comment_num'] = Video.commentCount || 0;
+                    _this.thumb['mylist_counter'] = Video.mylistCount || 0;
+                    _this.thumb['watch_url'] = tablink;
+                    _this.thumb['movie_type'] = movie_info['movie_type'];
+                    _this.thumb['user_id'] = movie_info['videoUserId'] || 0;
+                } else {
+                    // for GINZA
+                    _this.thumb['video_id'] = movie_info.videoDetail['v'] || '';
+                    _this.thumb['title'] = movie_info.videoDetail['title'] || '';
+                    _this.thumb['description'] = movie_info.videoDetail['description'] || '';
+                    _this.thumb['thumbnail_url'] = movie_info.videoDetail['thumbnail'] || '';
+                    _this.thumb['first_retrieve'] = movie_info.videoDetail['postedAt'] || '';;
+                    _this.thumb['length'] = 0;
+                    _this.thumb['size_high'] = 0;
+                    _this.thumb['size_low'] = 0;
+                    _this.thumb['view_counter'] = movie_info.videoDetail['viewCount'] || 0;
+                    _this.thumb['comment_num'] = movie_info.videoDetail['commentCount'] || 0;
+                    _this.thumb['mylist_counter'] = movie_info.videoDetail['mylistCount'] || 0;
+                    _this.thumb['watch_url'] = tablink;
+                    _this.thumb['movie_type'] = movie_info.flashvars['movie_type'];
+                    _this.thumb['user_id'] = movie_info.flashvars['community_id'] || 0;
+                }
+            }
+            
             _this.getMoviePath(_this.video_id);         // 取得video url
         },
         

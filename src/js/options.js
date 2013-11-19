@@ -625,7 +625,7 @@ function updateCounter() {
 
 function searchVideo() {
     var input_text = $("#search_text").val() || '';
-    console.log(input_text);
+    //console.log(input_text);
     var search_result_content = $("#search_result_content");
     var search_result = $("#search_result");
     
@@ -633,7 +633,7 @@ function searchVideo() {
         return;
 
     THK.DB.searchByLike(input_text, function(res){
-        console.log(res);
+        //console.log(res);
         if(res.length==0) {
             search_result_content.html("No data match the search string!");
             search_result.fadeIn(300);
@@ -725,5 +725,5 @@ function plugin_callback() {
 }
 
 function re_download(vid) {
-    chrome.extension.getBackgroundPage().prepareDownload({url: NICO_URL+vid, fromQueue:true});
+    chrome.extension.getBackgroundPage().prepareDownload({url: "http://"+NICO_URL+vid, fromQueue:true});
 }

@@ -377,7 +377,6 @@ function prepareDownload( aTab ) {
     } else {
         THK.Nico.init();
         THK.Nico.onMenuListClick(aTab.url);
-
         startDownload(THK.Nico.video_url, THK.Nico.flapi_params, THK.Nico.thumb, aTab.fromQueue);
     }
     
