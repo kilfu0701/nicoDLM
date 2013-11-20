@@ -2,7 +2,7 @@
  * script for option page.
  * (選單頁面)
 **/
-
+var TN = new THK.Nico();
 THK.DB.init();
 
 /* get setting from background.html */
@@ -117,7 +117,7 @@ function restoreOption() {
     $("#comment_file_format_input").val(localStorage["comment_file_format"]);
     
     var elem = THK.get('input[name=comment_lang_n]');
-    for(var i=0; i < THK.Nico.CommentLang.length; i++) {
+    for(var i=0; i < TN.CommentLang.length; i++) {
         if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
             elem[i].checked=true;
         }
@@ -478,13 +478,13 @@ function saveOption() {
     
     var _lang = 0;
     if( $("#comment_lang_jp")[0].checked==true ) 
-        _lang += THK.Nico.CommentLang[0][1];
+        _lang += TN.CommentLang[0][1];
     
     if( $("#comment_lang_en")[0].checked==true ) 
-        _lang += THK.Nico.CommentLang[1][1];
+        _lang += TN.CommentLang[1][1];
        
     if( $("#comment_lang_tw")[0].checked==true ) 
-        _lang += THK.Nico.CommentLang[2][1];
+        _lang += TN.CommentLang[2][1];
     
     localStorage["comments_for_download"] = _lang || 1;
     localStorage["saveFileAction"] = $("select#save_action option:selected")[0].value || 0;

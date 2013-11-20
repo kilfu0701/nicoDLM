@@ -3,5 +3,5 @@
  * and THK class finish initialize.
  * (執行用)
 **/
-THK.Nico.init({debug:false});
-THK.Nico.addLink(document.URL);
+var TN = new THK.Nico();
+TN.addLink(document.URL);

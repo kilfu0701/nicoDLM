@@ -358,6 +358,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });
 
 function prepareDownload( aTab ) {
+console.log(aTab);
     /* start download video & comments */
     // b'cuz background script is separated into different part. 
     // here has two way to do. 
@@ -367,13 +368,16 @@ function prepareDownload( aTab ) {
     if(THK.Nico==undefined) {
         console.log("THK.Nico.js not avalible...");
     } else {
-        THK.Nico.init();
-        THK.Nico.onMenuListClick(aTab.url);
-        startDownload(THK.Nico.video_url, THK.Nico.flapi_params, THK.Nico.thumb, aTab.fromQueue);
+        var TN = new THK.Nico();
+        TN.onMenuListClick(aTab.url);
+        startDownload(TN.video_url, TN.flapi_params, TN.thumb, aTab.fromQueue);
+        //THK.Nico.init();
+        //THK.Nico.onMenuListClick(aTab.url);
+        //startDownload(THK.Nico.video_url, THK.Nico.flapi_params, THK.Nico.thumb, aTab.fromQueue);
     }    
 }
 
-function nicoDLMenuOnClick(info, tab){
+function nicoDLMenuOnClick(info, tab) {
     chrome.tabs.getSelected( null , prepareDownload ); 
 }
 
