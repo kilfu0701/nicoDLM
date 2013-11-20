@@ -357,14 +357,6 @@ chrome.browserAction.onClicked.addListener(function(tab) {
     });
 });
 
-
-
-/**
- * Insert a menu into right-click MenuList.
-**/
-chrome.tabs.onUpdated.addListener( setMenuList );
-//chrome.tabs.onSelectionChanged.addListener( setMenuList );
-
 function prepareDownload( aTab ) {
     /* start download video & comments */
     // b'cuz background script is separated into different part. 
@@ -378,9 +370,7 @@ function prepareDownload( aTab ) {
         THK.Nico.init();
         THK.Nico.onMenuListClick(aTab.url);
         startDownload(THK.Nico.video_url, THK.Nico.flapi_params, THK.Nico.thumb, aTab.fromQueue);
-    }
-    
-    
+    }    
 }
 
 function nicoDLMenuOnClick(info, tab){
@@ -388,11 +378,21 @@ function nicoDLMenuOnClick(info, tab){
 }
 
 function setMenuList( aTabId , aChangeInfo ) {
-    chrome.contextMenus.removeAll();
+    chrome.contextMenus.remove('nicoDLM_contextMenus');
     chrome.tabs.get( aTabId , function( aTab ) {
         if( isNicoURL(aTab.url) ) {
             var _lang = getLang();
-            var id = chrome.contextMenus.create({"title": _locale[_lang]['MenuListTitle'], "contexts":['all'], "onclick": nicoDLMenuOnClick});
+            var id = chrome.contextMenus.create({
+                "id": 'nicoDLM_contextMenus',
+                "title": _locale[_lang]['MenuListTitle'],
+                "contexts":['all'], "onclick": nicoDLMenuOnClick
+            });
         }
     });
 }
+
+/**
+ * Insert a menu into right-click MenuList.
+**/
+//chrome.tabs.onUpdated.addListener( setMenuList );
+chrome.tabs.onSelectionChanged.addListener( setMenuList );
