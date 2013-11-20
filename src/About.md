@@ -11,12 +11,16 @@ nicoDLM (Nico Download Manager)
 
 相關套件消息&更新，可以到 [nicoDLM@Blogger](http://kilfu0701.blogspot.tw/2012/12/nico-download-manager-nicodlm.html) 以及 [nicoDLM@github](https://github.com/kilfu0701/nicoDLM)
 
-**目前版本(Version): 0.1.6** @ 2013/2/11
+**目前版本(Version): 0.1.7** @ 2013/11/20
 
 .  
 
 CHANGE LOG：
 -----
+  * 0.1.7:
+    * 修復 **右鍵選單**有時候會消失的BUG。
+    * 修復 社群的影片會無法下載。(影片ID全為數字的情況。)
+
   * 0.1.6:    
     * 新增**重新下載**功能。
     * 一般設定 新增**下載模式**。可以選擇高畫質才下載或是低畫質強制下載。
