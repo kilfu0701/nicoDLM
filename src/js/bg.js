@@ -14,43 +14,12 @@ var fs2;                      // plugin object.
 var mvurls = "";              // movie's URL.
 var plugin_msg = new Array(); // all message send from plugin.
 var nicoAppDir;
+var contextMenuEnabled = false;
 
 window.onload = function() {
-    loadPlugin();
+    //loadPlugin();
     Initialize();
     runDLQueue();
-}
-
-/**
- * enable functions:
- *    dl (url, filename, ext, path, video_id, overwrite)     -- video download function
- *
- *    dlComment (url, filename, ext, path, thread_id, lang)  -- comment download
- *
- *    getValueForURL (url)                                   -- get cookie
- *
- *    saveTextFile (fullpath, text)                          -- save a text file
- *
- *    
-**/
-function testPlugin() {
-    /* multi-thread test */
-    //fs2.dl("ftp://106.187.91.19/download/%E8%80%B3%E6%A9%9F%E5%B0%91%E5%A5%B3%E7%95%AB%E5%A0%B1.rar", "1", ".rar", "C:/", "id1");
-    //fs2.dl("ftp://106.187.91.19/download/%E8%80%B3%E6%A9%9F%E5%B0%91%E5%A5%B3%E7%95%AB%E5%A0%B1.rar", "2", ".rar", "C:/", "id2");
-    //fs2.dl("ftp://106.187.91.19/download/%E8%80%B3%E6%A9%9F%E5%B0%91%E5%A5%B3%E7%95%AB%E5%A0%B1.rar", "3", ".rar", "C:/", "id3");
-    //fs2.dl("ftp://106.187.91.19/download/%E8%80%B3%E6%A9%9F%E5%B0%91%E5%A5%B3%E7%95%AB%E5%A0%B1.rar", "4", ".rar", "C:/", "id4");
-    
-    /* special filename test */
-    fs2.dl("ftp://106.187.91.19/download/%E8%80%B3%E6%A9%9F%E5%B0%91%E5%A5%B3%E7%95%AB%E5%A0%B1.rar", "4<>:\"/\\|?*aa", ".rar", "C:/", "id4");
-    
-    /* comment download test */
-    //fs2.dlComment("http://msg.nicovideo.jp/30/api/", "1", ".xml", "C:/", "1309980706");
-    
-    /* get File size */
-    //console.log(fs2.getFileSize("D://Packt.Apache.Solr.3.1.Cookbook.Jul.2011.epub"));
-   
-    /* GET COOKIE */
-    //fs2.getValueForURL("http://www.nicovideo.jp/video_top");
 }
 
 /**
@@ -65,7 +34,7 @@ function resetAutoInc() {
  * (初始化)
 **/
 function Initialize() {
-    nicoAppDir = fs2.getAppDir() || G_DL_DIR;
+    nicoAppDir = G_DL_DIR;
 
     // 語言環境設定
     if(localStorage["lang"]==undefined) {
@@ -280,7 +249,14 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
 
                 /* start download by plugin. */
                 var _ext = movieThumb.movie_type || "thk";
-                var DLcode = fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id, ""+localStorage["saveFileAction"]);
+                var DLcode = 'dl'; // || fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id, ""+localStorage["saveFileAction"]);
+                
+                console.log(movieURL);
+                
+                chrome.downloads.download({
+                    url: movieURL,
+                    filename: _fname + '.' + _ext
+                }, function(downloadId) {});
                 
                 /* download commnet 
                         1 = JP
@@ -291,16 +267,28 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                         6 = EN+TW
                         7 = ALL
                 */
+                console.log(flapiInfo);
                 for(var i=0; i<3; i++) {
                     if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
                         var _cmtName = generateDownloadFileFormat(movieThumb, i);
-                        fs2.dlComment(flapiInfo.ms, _cmtName, ".xml", dir_path, flapiInfo.thread_id, ""+i); // here must put as String.
+                        //fs2.dlComment(flapiInfo.ms, _cmtName, ".xml", dir_path, flapiInfo.thread_id, ""+i); // here must put as String.
+                        chrome.downloads.download({
+                            url: flapiInfo.ms,
+                            filename: _cmtName + '.xml',
+                            body: '<packet>'
+                                    + '<thread thread="1309980706" version="20090904" user_id="'+flapiInfo.user_id+'" scores="1" nicoru="1" with_global="1"/>'
+                                    + '<thread_leaves thread="1309980706" user_id="'+flapiInfo.user_id+'" scores="1" nicoru="1">0-4:100,250</thread_leaves>'
+                                    + '<thread thread="1312621314" version="20090904" user_id="'+flapiInfo.user_id+'" scores="1" nicoru="1"/>'
+                                    + '<thread_leaves thread="1312621314" user_id="'+flapiInfo.user_id+'" scores="1" nicoru="1">0-4:100,250</thread_leaves>'
+                                    + '<thread thread="1309980706" version="20061206" res_from="-1000" fork="1" click_revision="-1" scores="1"/>'
+                                    + '</packet>'
+                        }, function(downloadId) {});
                     }
                 }
                 
                 if(DLcode=="dl" && fromQueue==undefined) {
                     var lang = getLang();
-                    alert(_locale[lang]['addIntoDLSuccess']);
+                    //alert(_locale[lang]['addIntoDLSuccess']);
                 } else {
                 
                 }
@@ -312,6 +300,66 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
     });
 }
 
+/**
+ * setup downloads listener.
+ */
+chrome.downloads.onCreated.addListener(function(downloadItem) {
+/*
+    chrome.downloads.cancel(downloadItem.id , function() {
+       console.log("Download was cancelled")
+    });
+
+    chrome.downloads.pause(downloadItem.id , function() {
+       console.log("Download was paused")
+    });
+
+    chrome.downloads.resume(downloadItem.id , function() {
+       console.log("Download was resumed")
+    });   
+    
+    chrome.downloads.getFileIcon(downloadItem.id, {}, function() {
+    
+    });
+*/
+
+});
+
+chrome.downloads.onChanged.addListener(function(downloadDelta) {
+
+});
+
+chrome.downloads.onChanged.addListener(function(delta) {
+    console.log(delta);
+    if (!delta.state || (delta.state.current != 'complete')) {
+        return;
+    }
+    
+    var ids = getOpeningIds();
+    
+    if (ids.indexOf(delta.id) < 0) {
+        return;
+    }
+    
+    console.log(ids);
+    
+    chrome.downloads.open(delta.id);
+    ids.splice(ids.indexOf(delta.id), 1);
+    setOpeningIds(ids);
+});
+
+function getOpeningIds() {
+  var ids = [];
+  try {
+    ids = JSON.parse(localStorage.openWhenComplete);
+  } catch (e) {
+    localStorage.openWhenComplete = JSON.stringify(ids);
+  }
+  return ids;
+}
+
+function setOpeningIds(ids) {
+    localStorage.openWhenComplete = JSON.stringify(ids);
+}
 
 /**
  * filename formatting 
@@ -382,7 +430,11 @@ function nicoDLMenuOnClick(info, tab) {
 }
 
 function setMenuList( aTabId , aChangeInfo ) {
-    chrome.contextMenus.remove('nicoDLM_contextMenus');
+    if(contextMenuEnabled) {
+        chrome.contextMenus.remove('nicoDLM_contextMenus');
+        contextMenuEnabled = false;
+    }
+    
     chrome.tabs.get( aTabId , function( aTab ) {
         if( isNicoURL(aTab.url) ) {
             var _lang = getLang();
@@ -391,6 +443,8 @@ function setMenuList( aTabId , aChangeInfo ) {
                 "title": _locale[_lang]['MenuListTitle'],
                 "contexts":['all'], "onclick": nicoDLMenuOnClick
             });
+            
+            contextMenuEnabled = true;
         }
     });
 }
