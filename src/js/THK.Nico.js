@@ -127,7 +127,9 @@ THK.Nico.prototype.getVideoInfo2 = function() {
 
 THK.Nico.prototype.getVideoInfo_GINZA = function(url) {
     var _this = this;
-
+    
+    //console.log('getVideoInfo_GINZA', url);
+    
     /* 取得網頁原始碼 */
     $.ajax({
         url: url,

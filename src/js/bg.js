@@ -35,6 +35,9 @@ function resetAutoInc() {
 **/
 function Initialize() {
     nicoAppDir = G_DL_DIR;
+    
+    //if (chrome.downloads.setShelfEnabled)
+    //    chrome.downloads.setShelfEnabled(false);
 
     // 語言環境設定
     if(localStorage["lang"]==undefined) {
@@ -142,8 +145,10 @@ function plugin_callback() {
 **/
 var queueID = 0;
 function runDLQueue() {
+    //##console.log('func runDLQueue...');
+    
     THK.DB.getCount("dl_queue", function(ct){
-        if(queueID>=ct) {
+        if(queueID >= ct) {
             queueID = 0;
         }
         
@@ -152,9 +157,12 @@ function runDLQueue() {
             limit: 1,
             offset: queueID
         }, function(ret){
-            if(ret.length==1) {
+            
+            //##console.log(ret);
+            
+            if(ret.length == 1) {
                 prepareDownload({
-                    url: NICO_URL + ret[0].video_id, 
+                    url: 'http://' + NICO_URL + ret[0].video_id, 
                     fromQueue : true
                 });
             }
@@ -162,8 +170,6 @@ function runDLQueue() {
         });
         
     });
-    
-
     
     window.setTimeout( runDLQueue, 60*1000); // re-check per 1 minute.
 }
@@ -251,12 +257,14 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                 var _ext = movieThumb.movie_type || "thk";
                 var DLcode = 'dl'; // || fs2.dl(movieURL, _fname, "."+_ext, dir_path, movieThumb.video_id, ""+localStorage["saveFileAction"]);
                 
-                console.log(movieURL);
+                //##console.log(movieURL);
                 
                 chrome.downloads.download({
                     url: movieURL,
                     filename: _fname + '.' + _ext
-                }, function(downloadId) {});
+                }, function(downloadId) {
+                    console.log(downloadId);
+                });
                 
                 /* download commnet 
                         1 = JP
@@ -267,7 +275,7 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                         6 = EN+TW
                         7 = ALL
                 */
-                console.log(flapiInfo);
+                //##console.log(flapiInfo);
                 for(var i=0; i<3; i++) {
                     if( (localStorage["comments_for_download"]>>i & 0x1)==1 ) {
                         var _cmtName = generateDownloadFileFormat(movieThumb, i);
@@ -282,7 +290,9 @@ function startDownload(movieURL, flapiInfo, movieThumb, fromQueue) {
                                     + '<thread_leaves thread="1312621314" user_id="'+flapiInfo.user_id+'" scores="1" nicoru="1">0-4:100,250</thread_leaves>'
                                     + '<thread thread="1309980706" version="20061206" res_from="-1000" fork="1" click_revision="-1" scores="1"/>'
                                     + '</packet>'
-                        }, function(downloadId) {});
+                        }, function(downloadId) {
+                            console.log(downloadId);
+                        });
                     }
                 }
                 
@@ -334,32 +344,11 @@ chrome.downloads.onChanged.addListener(function(delta) {
         return;
     }
     
-    var ids = getOpeningIds();
-    
-    if (ids.indexOf(delta.id) < 0) {
-        return;
-    }
-    
-    console.log(ids);
-    
-    chrome.downloads.open(delta.id);
-    ids.splice(ids.indexOf(delta.id), 1);
-    setOpeningIds(ids);
+
 });
 
-function getOpeningIds() {
-  var ids = [];
-  try {
-    ids = JSON.parse(localStorage.openWhenComplete);
-  } catch (e) {
-    localStorage.openWhenComplete = JSON.stringify(ids);
-  }
-  return ids;
-}
 
-function setOpeningIds(ids) {
-    localStorage.openWhenComplete = JSON.stringify(ids);
-}
+
 
 /**
  * filename formatting 
@@ -387,7 +376,6 @@ function generateDownloadFileFormat(vinfo, type) {
     
     }
 
-    
     //ret = ret.replace(/&amp;/g, '');
     var div = document.createElement('div');
     div.innerHTML = ret;
@@ -406,7 +394,9 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 });
 
 function prepareDownload( aTab ) {
-console.log(aTab);
+    //##console.log(aTab);
+
+
     /* start download video & comments */
     // b'cuz background script is separated into different part. 
     // here has two way to do. 
@@ -438,11 +428,16 @@ function setMenuList( aTabId , aChangeInfo ) {
     chrome.tabs.get( aTabId , function( aTab ) {
         if( isNicoURL(aTab.url) ) {
             var _lang = getLang();
-            var id = chrome.contextMenus.create({
-                "id": 'nicoDLM_contextMenus',
-                "title": _locale[_lang]['MenuListTitle'],
-                "contexts":['all'], "onclick": nicoDLMenuOnClick
-            });
+            
+            try {
+                var id = chrome.contextMenus.create({
+                    "id": 'nicoDLM_contextMenus',
+                    "title": _locale[_lang]['MenuListTitle'],
+                    "contexts":['all'], "onclick": nicoDLMenuOnClick
+                });
+            } catch(e) {
+            
+            }
             
             contextMenuEnabled = true;
         }

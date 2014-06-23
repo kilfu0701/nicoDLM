@@ -20,6 +20,7 @@
     "management",
     "contextMenus",
     "downloads",
+    "downloads.shelf",
 	"http://www.nicovideo.jp/*",
 	"http://flapi.nicovideo.jp/*",
     "http://*/*"

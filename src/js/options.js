@@ -28,7 +28,7 @@ window.onload = function() {
     j_edit_window = j_edit_window || $("#edit_window");
     j_search_result = j_search_result || $("#search_result");
 
-    loadPlugin();         // 1
+    //loadPlugin();         // 1
     restoreOption();      // 2
     setLocaleWording();   // 3
     loadAboutMe();        // 4
@@ -231,12 +231,14 @@ function addEventHandle() {
     $("#close_search_btn").click(function(e){  $("#search_result").fadeOut(300);  });
     
     /* 選擇資料夾(browse folder selector) */
+    /*
     $("#download_dir_btn").click(function(e){
         var dl_path = plugin.selectFolder();
         if(dl_path!="") {
             $("#download_dir_input").val(dl_path);
         }
     });    
+    */
     
     /* draggable blocks */
     j_edit_window.draggable();
@@ -439,6 +441,7 @@ function readPluginMsg() {
  * 開啟windows folder explorer.
 **/
 function openDir(path) {
+/*
     var arr = path.split("/");
     var len = arr.length;
     
@@ -458,6 +461,7 @@ function openDir(path) {
     // open dir by plugins
     _D({path: path, fname:fname});
     plugin.openDir(path, fname);
+*/
 }
 
 /**
@@ -557,9 +561,9 @@ function editItemById(smid) {
         
         var edit_content = $("div#edit_content");
         edit_content.html($(
-            '<label>'+_locale[pn]['videoTitle']+'</label> <input id="edit_title" value="'+res.title+'"></input> <br>'+
-            '<label>'+_locale[pn]['videoPath']+'</label> <input id="edit_dir" value="'+res.dir+'"></input> <br>'+
-            '<label>'+_locale[pn]['videoComment']+'</label> <textarea id="edit_comment">'+res.comment+'</textarea> <br>'+
+            '<label>'+_locale[pn]['videoTitle']+'</label> <input id="edit_title" value="'+res.title+'"></input> <br>' +
+            '<!--label>'+_locale[pn]['videoPath']+'</label> <input id="edit_dir" value="'+res.dir+'"></input> <br-->' +
+            '<label>'+_locale[pn]['videoComment']+'</label> <textarea id="edit_comment">'+res.comment+'</textarea> <br>' +
             '<input type="button" class="submit-button" value="Update">'
         ));
         

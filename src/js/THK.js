@@ -15,9 +15,9 @@ var G_DL_DIR = "C:/",
     G_DEFAULT_LANG = "default",
     G_FILE_FORMAT = "[%ID%] %TITLE%",
     G_COMMENT_FILE_FORMAT = "[%ID%] %TITLE% [%COMMENT%]",
-    VERSION = '0.1.7',
-    RELEASE = '2013/11/20';
-    
+    VERSION = '0.2.0',
+    RELEASE = '2014/06/22';
+
 var NICO_URL = "www.nicovideo.jp/watch/";
 var NICO_REG_URL = new RegExp( NICO_URL );
 
